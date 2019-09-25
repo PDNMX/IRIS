@@ -1,0 +1,22 @@
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+# Run:
+#   - Create mongodb container
+#   - Create iris-app container and linked with mongodb container
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+# Scripts:
+#   - Run and first time build
+#     docker-compose up
+#   - Rebuild containers then run
+#     docker-compose up -d --build
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+version: "2.0"
+services:
+  iris_app:
+    container_name: "iris_app"
+    build: ./docker/node/
+    ports:
+      - 3000:3000
+    volumes:
+      - ./:/iris-production
+    env_file:
+      - .env

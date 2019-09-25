@@ -1,0 +1,21 @@
+{
+  "name": "linkTo",
+  "args": {
+    "onClick": [
+      {
+        "name": "goToPane",
+        "args": {
+          "paneId": 3
+        }
+      },
+      {
+        "name": "setFilter",
+        "args": {
+          "dataSetId": "analytic_declaraciones_brief",
+          "field": "rfc",
+          "paneId": 3
+        }
+      }
+    ]
+  }
+}
