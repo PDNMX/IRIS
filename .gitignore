@@ -88,4 +88,6 @@ client/coverage
 # production
 .docker
 !.docker/scripts.txt
-# client/build
+lib
+client/build
+client/.env
