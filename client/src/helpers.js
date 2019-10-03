@@ -13,7 +13,7 @@ String.prototype.plural = function() {
 };
 
 String.prototype.toWords = function() {
-    return this.match(/[A-Z][a-z]+|[0-9]+/g).join(" ");
+    return this.match(/[A-Z][a-z]+|[0-9]+/g).join(' ');
 };
 
 String.prototype.singular = function() {
@@ -43,6 +43,9 @@ export default {
     percentage(value) {
         return numeral(value).format('0.00%');
     },
+    percentageInt(value) {
+        return numeral(value).format('0%');
+    },
     formattedLocaleDate(value, { format }) {
         return moment(new Date(value)).format(format);
     },
@@ -56,13 +59,13 @@ export default {
         return (value === true)? 'Sí': 'No';
     },
     currency(value) {
-        return numeral(value).format('$ 0,0.00');
+        return numeral(value).format('$0,0');
     },
     currencyMillions(value) {
-        return numeral(value).format('($0.0 a)');
+        return numeral(value).format('($0 a)');
     },
     mailTo(value) {
-        return (<a href={`mailto:${value}`} style={ { textDecoration: "none", color: "#757575" } }>{value}</a>);
+        return (<a href={`mailto:${value}`} style={ { textDecoration: 'none', color: '#757575' } }>{value}</a>);
     },
     linkTo(value, {href}) {
         return <a href={href}>{value}</a>;
@@ -87,7 +90,7 @@ export default {
         let result = '';
 
         if (value.length > 0) {
-            result = this.getRawValue(value).capitalize().match(/[A-Z][a-z]+|[0-9]+/g).join(" ");
+            result = this.getRawValue(value).capitalize().match(/[A-Z][a-z]+|[0-9]+/g).join(' ');
         }
 
         return result;
@@ -116,5 +119,17 @@ export default {
                 reader.addEventListener('load', () => resolve(reader.result));
                 reader.readAsDataURL(fileList[0].originFileObj);
             });
+    },
+    numeral_0_0(v) {
+        return numeral(v).format('0,0');
+    },
+    mathFloor(v) {
+        return Math.floor(v);
+    },
+    mathCeil(v) {
+        return Math.ceil(v);
+    },
+    mathRound(v) {
+        return Math.round(v);
     }
 }

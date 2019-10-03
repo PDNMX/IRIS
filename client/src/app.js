@@ -7,7 +7,7 @@ import auth from './auth';
 import 'moment/locale/es-do';
 import DashboardEditor from './plugins/dashboards';
 
-const {Content, Footer} = Layout;
+const { Header, Content, Sider, Footer } = Layout;
 
 class AppLayout extends React.Component {
     constructor(props) {
@@ -16,7 +16,9 @@ class AppLayout extends React.Component {
             collapsed: true,
             width: window.innerWidth,
             height: window.innerHeight,
-            loggedIn: auth.loggedIn()
+            loggedIn: auth.loggedIn(),
+            query: `{ hub (id: 1 ) { id name  } }`,
+            hub: {id: 0, name: '',  }
         };
     }
 
@@ -86,11 +88,11 @@ export default class Router extends React.Component {
 
     render() {
         return (
-            <BrowserRouter>
-                <Switch>
-                    <PrivateRoute component={AppLayout}/>
-                </ Switch>
-            </ BrowserRouter>
+<BrowserRouter >
+  <Switch >
+    <PrivateRoute component={AppLayout} />
+  </ Switch>
+</ BrowserRouter>
         );
     }
 }

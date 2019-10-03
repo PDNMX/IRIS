@@ -3,10 +3,10 @@ import NumericFilter from './numerical';
 import CategoricalFilter from './categorical';
 import SwitchFilter from './switch';
 import DatetimeFilter from './datetime';
-import {connect} from "react-redux";
-import {mapStateToProps} from "../charts/utils";
-import {addFilter, removeFilter} from "../store/actions";
-import _ from "lodash";
+import {connect} from 'react-redux';
+import {mapStateToProps} from '../charts/utils';
+import {addFilter, removeFilter} from '../store/actions';
+import _ from 'lodash';
 
 
 const Filter = connect(mapStateToProps, {addFilter, removeFilter})(
@@ -16,7 +16,7 @@ const Filter = connect(mapStateToProps, {addFilter, removeFilter})(
         };
 
         state = {
-            filters: {}
+            filters: this.props.filters
         };
 
         constructor(props) {
@@ -31,14 +31,15 @@ const Filter = connect(mapStateToProps, {addFilter, removeFilter})(
                 await this.itemRef.current.loadData(this.getMatch());
                 this.setFilterValue();
             }
-            else if (!!dashboardId && _.isEmpty(this.state.filters)) {
+            else if (!!dashboardId /*&& _.isEmpty(this.state.filters)*/) {
                 await this.itemRef.current.loadData(this.getMatch());
                 this.setFilterValue();
             }
         }
 
         setFilterValue = () => {
-            const {filters, itemId, filter} = this.props;
+            const { filters } = this.state,
+                { itemId, filter} = this.props;
 
             _.forEach(
                 _.pickBy(
@@ -57,7 +58,8 @@ const Filter = connect(mapStateToProps, {addFilter, removeFilter})(
         };
 
         getMatch = () => {
-            const {filters, itemId, filter} = this.props;
+            const { filters } = this.state,
+                { itemId, filter} = this.props;
 
             if (!_.isEmpty(filters)) {
                 let match = {};
@@ -81,9 +83,11 @@ const Filter = connect(mapStateToProps, {addFilter, removeFilter})(
         };
 
         async componentDidUpdate() {
-            const {filterContext, filter} = this.props;
+            const {filterContext, filter, itemId} = this.props;
 
-            // console.log('#filters', filter.filterType, this.state.filters, this.props.filters);
+            /*if (itemId === '72e3cc90-de37-11e9-8753-a32812d64875') {
+                console.log('#filters', filter.filterType, this.state.filters, this.props.filters);
+            }*/
 
             if (filterContext === 'pane') {
                 if (!_.isEqual(this.state.filters, this.props.filters)) {

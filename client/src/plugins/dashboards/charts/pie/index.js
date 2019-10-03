@@ -1,6 +1,6 @@
 import React from 'react';
-import { Axis, Chart, Legend, Tooltip, Pie, Coord } from "viser-react";
-import {Skeleton} from "antd";
+import { Axis, Chart, Legend, Tooltip, Pie, Coord } from 'viser-react';
+import {Skeleton} from 'antd';
 import getData from '../data';
 
 
@@ -78,7 +78,7 @@ export default class extends React.Component {
                     <Tooltip showTitle={false}/>
                     <Axis/>
                     <Legend dataKey={detailsName}/>
-                    <Coord type="theta" radius={0.75} innerRadius={0.6}/>
+                    <Coord type='theta' radius={0.75} innerRadius={0.6}/>
                     <Pie
                         position={'percent'}
                         color={detailsName}

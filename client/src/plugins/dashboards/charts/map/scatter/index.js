@@ -2,8 +2,8 @@
 import React from 'react';
 import DeckGL, {FlyToInterpolator, ScatterplotLayer} from 'deck.gl';
 import MapGL from 'react-map-gl';
-import rp from "request-promise";
-import auth from "../../../../../auth";
+import rp from 'request-promise';
+import auth from '../../../../../auth';
 import chroma from 'chroma-js';
 import _ from 'lodash';
 import './styles.css';
@@ -68,7 +68,7 @@ export default class extends React.Component {
             };
         }
 
-        console.log('#match', match, options.body);
+        // console.log('#match', match, options.body);
 
         try {
             const documents = await rp(options),
@@ -148,7 +148,11 @@ export default class extends React.Component {
                     <Card size={'small'} bodyStyle={{width: 220}}>
                         <Descriptions column={1}>
                             {
-                                _.map(fields, (f, n) =>
+                                _.uniqBy(
+                                    _.map(fields),
+                                    f => f.value.name
+                                ).map(
+                                    (f, n) =>
                                     <Descriptions.Item key={n} label={f.alias? f.alias: f.value.name}>
                                         {this.renderField(f, hoveredObject[f.value.name])}
                                     </Descriptions.Item>

@@ -1,7 +1,7 @@
 import React from 'react';
-import {Axis, Chart, Coord, Legend, Line, Point, Tooltip} from "viser-react/es/index";
-import getData from "../data";
-import numeral from "numeral";
+import { Axis, Chart, Tooltip, Line, Point, Coord, Legend} from 'viser-react/es/index';
+import getData from '../data';
+import numeral from 'numeral';
 
 export default class extends React.Component {
     state = {
@@ -78,11 +78,11 @@ export default class extends React.Component {
 
         let axisScale = {
                 dataKey: `_id_${axis.value.name}`,
-
+                // type: this.getScale(axis)
             },
             valuesScale = {
                 dataKey: values.value.name,
-
+                // type: this.getScale(values)
             };
 
         if (!!values.formatter) {

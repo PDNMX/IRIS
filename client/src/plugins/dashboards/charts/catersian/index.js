@@ -1,12 +1,35 @@
 import React from 'react';
-import {Axis, Chart, Legend, Line, Bar, StackBar, Point, StackArea, Area, Tooltip, View} from "viser-react";
-import { Skeleton } from "antd";
+import {
+    Axis,
+    Chart,
+    Legend,
+    Line,
+    Bar,
+    StackBar,
+    Point,
+    StackArea,
+    Area,
+    Tooltip,
+    View,
+    Coord,
+    Brush,
+    Global
+} from 'viser-react';
+import { Skeleton } from 'antd';
 import getData from '../data';
 import _ from 'lodash';
 import helpers from '../../../../helpers';
-
 const DataSet = require('@antv/data-set');
 
+const availableAnalytics = ['avg', 'min', 'max'],
+    analyticName = {
+        'avg': 'Promedio',
+        'min': 'Mínimo',
+        'max': 'Máximo',
+        'avg_total': 'Promedio global',
+        'min_total': 'Mínimo global',
+        'max_total': 'Máximo global'
+    };
 
 export default class extends React.Component {
     state = {
@@ -19,6 +42,10 @@ export default class extends React.Component {
     async componentDidMount() {
         // await this.setState({ options: this.props.options });
         // await this.loadData();
+        if (!!Global && 'defaultColor' in Global) {
+            const { defaultColor } = Global;
+            this.setState({defaultColor})
+        }
     }
 
     getCumulativeComparator = c => {
@@ -37,7 +64,7 @@ export default class extends React.Component {
     };
 
     loadData = async (match=undefined) => {
-        const { dataSet, options } = this.props;
+        const { dataSet, options, chartType } = this.props;
         let { fields, config } = options,
             { axis, values, color } = fields,
             chartFields = { axis, values, color },
@@ -88,7 +115,7 @@ export default class extends React.Component {
         }
 
         // console.log(documents);
-        const withAnalytic = !!config && !!config.analytic && !!config.analytic.value;
+        let withAnalytic = !!config && !!config.analytic && !!config.analytic.value;
 
         if (
             (values.value instanceof Array && values.value.length > 1) ||
@@ -97,12 +124,64 @@ export default class extends React.Component {
                 values.value instanceof Array && values.value.length === 1
             )
         ) {
+            if (axis.value.type === 'datetime' && !!axis.operator && axis.operator.split('-').length > 1) {
+                documents.forEach(d => d['_id'] = _.map(d['_id']).join('-'));
+            }
+
+            if (withAnalytic && !availableAnalytics.includes(config.analytic.value)) {
+                const v = values.value[0];
+                const value = config.analytic.value.split('_')[0],
+                    analyticConfig = {
+                        ...config,
+                        analytic: {
+                            ...config.analytic,
+                            value
+                        }
+                    };
+
+                let analyticDocuments = await getData(
+                    'cartesian',
+                    dataSet.id,
+                    options.fields,
+                    undefined,
+                    analyticConfig
+                );
+
+                analyticDocuments = analyticDocuments.map(d =>
+                    ({
+                        '_id': d['_id'],
+                        [`${v.name}_${config.analytic.value}`]: d[`${v.name}_${value}`]
+                    })
+                );
+
+                documents = _.map(
+                    _.merge(
+                        _.keyBy(documents, '_id'),
+                        _.keyBy(analyticDocuments, '_id')
+                    )
+                );
+            }
+
             documents.forEach(d => d[`_id_${axis.value.name}`] = d['_id']);
+
+            if (axis.value.type === 'datetime' && chartType.toLowerCase().includes('bar')) {
+                documents = _.orderBy(documents, `_id_${axis.value.name}`);
+                documents.forEach(d => d[`_id_${axis.value.name}`] = d[`_id_${axis.value.name}`].toString());
+            }
 
             const dv = new DataSet.View().source(documents),
                 fields = withAnalytic?
                     [values.value[0].name, `${values.value[0].name}_${config.analytic.value}`]:
                     values.value.map(field => field.name);
+
+            let names = {};
+
+            values.value.forEach(v => names[v.name] = !!v.alias? v.alias: v.name);
+
+            if (withAnalytic) {
+                const v = values.value[0];
+                names[`${v.name}_${config.analytic.value}`] = `${analyticName[config.analytic.value]}: ${!!v.alias? v.alias: v.name}`
+            }
 
             dv.transform({
                 type: 'fold',
@@ -130,6 +209,16 @@ export default class extends React.Component {
                     type: 'string'
                 };
 
+            // console.log(data, names);
+
+            data.forEach(d => {
+                const varName = d['_id_variable'];
+
+                if (varName in names) {
+                    d['_id_variable'] = names[varName];
+                }
+            });
+
             if (!!targetValueFormatter) {
                 newValues.formatter = targetValueFormatter.formatter;
             }
@@ -146,18 +235,46 @@ export default class extends React.Component {
 
             documents = data;
 
+            // console.log(chartFields, documents);
+
             const valueArray = documents.map(d => d.value);
             minValues = _.min(valueArray);
             maxValues = _.max(valueArray);
         }
         else {
             if (!!color && !!color.value && color.value.name !== axis.value.name) {
-                documents.forEach(d => {
-                    d[`_id_${axis.value.name}`] = d['_id'][axis.value.name];
-                    d[`_id_${color.value.name}`] = d['_id'][color.value.name];
-                });
-            } else {
-                documents.forEach(d => d[`_id_${axis.value.name}`] = d['_id']);
+
+                if (axis.value.type === 'datetime' && !!axis.operator && axis.operator.split('-').length > 1) {
+                    documents.forEach(d => {
+                        d[`_id_${axis.value.name}`] = _.map(axis.operator.split('-'), p => d[p]).join('-');
+                        d[`_id_${color.value.name}`] = d['_id'][color.value.name];
+                    });
+                }
+                else {
+                    documents.forEach(d => {
+                        d[`_id_${axis.value.name}`] = d['_id'][axis.value.name];
+                        d[`_id_${color.value.name}`] = d['_id'][color.value.name];
+                    });
+                }
+            }
+            else {
+                if (axis.value.type === 'datetime' && !!axis.operator && axis.operator.split('-').length > 1) {
+                    documents.forEach(d => {
+                        d[`_id_${axis.value.name}`] = _.map(d['_id']).join('-');
+                    });
+                }
+                else {
+                    documents.forEach(d => d[`_id_${axis.value.name}`] = d['_id']);
+                }
+            }
+
+            if (axis.value.type === 'string') {
+                documents = _.orderBy(documents, values.value[0].name);
+            }
+
+            if (axis.value.type === 'datetime' && chartType.toLowerCase().includes('bar')) {
+                documents = _.orderBy(documents, `_id_${axis.value.name}`);
+                documents.forEach(d => d[`_id_${axis.value.name}`] = d[`_id_${axis.value.name}`].toString());
             }
 
             const valueArray = documents.map(d => d[values.value[0].name]);
@@ -168,16 +285,22 @@ export default class extends React.Component {
                 const cmp = this.getCumulativeComparator(config.cumulative.value),
                     an = `_id_${axis.value.name}`,
                     vn = values.value[0].name,
-                    cvn = `${values.value[0].name}_cumulative`;
+                    cvn = `${values.value[0].name}_cumulative`,
+                    total = documents.map(d => d[vn]).reduce((a, b) => a + b, 0);
 
                 // console.log(an, vn, cvn, config.cumulative.value, cmp);
 
-                documents.forEach(dc => {
-                   dc[cvn] = documents
-                       .filter(dt => cmp(dt[an], dc[an]))
-                       .map(dt => dt[vn])
-                       .reduce((a, b) => a + b, 0);
-                });
+                if (total > 0) {
+                    documents.forEach(dc =>
+                        dc[cvn] = documents
+                            .filter(dt => cmp(dt[an], dc[an]))
+                            .map(dt => dt[vn])
+                            .reduce((a, b) => a + b, 0) / total
+                    );
+                }
+                else {
+                    documents.forEach(dc => dc[cvn] = 0);
+                }
             }
         }
 
@@ -188,6 +311,8 @@ export default class extends React.Component {
     };
 
     getXScale = (axis) => {
+        const { chartType } = this.props;
+
         switch (axis.value.type) {
             case 'numeric':
                 return 'linear';
@@ -198,7 +323,12 @@ export default class extends React.Component {
             case 'datetime':
                 // todo: add other operators
                 if (!!axis.operator && axis.operator === 'year') {
-                    return 'linear';
+                    if (chartType.toLowerCase().includes('bar')) {
+                        return 'cat';
+                    }
+                    else {
+                        return 'linear';
+                    }
                 }
                 else {
                     return 'timeCat';
@@ -229,7 +359,7 @@ export default class extends React.Component {
 
     renderChart = () => {
         const { chartType } = this.props,
-            { chartFields } = this.state,
+            { chartFields, defaultColor } = this.state,
             { axis, values, color } = chartFields,
             position = `_id_${axis.value.name}*${values.value.name}`,
             { config } = this.props.options;
@@ -237,12 +367,19 @@ export default class extends React.Component {
         // console.log(config);
 
         let label = [`${values.value.name}`],
-            labelOptions = {};
+            labelOptions = {
+                textStyle: {
+                    fontSize: 11
+                }
+            };
 
         labelOptions.formatter = !!values.formatter? helpers[values.formatter]: v => v;
 
         if (!!config && !!config.density && !!config.density.value) {
             labelOptions.density = config.density.value;
+        }
+        else {
+            labelOptions = {};
         }
 
         if (!_.isEmpty(labelOptions)) {
@@ -255,6 +392,13 @@ export default class extends React.Component {
 
         if (!!color && !!color.value) {
             props.color = `_id_${color.value.name}`;
+        }
+        else if (!!defaultColor) {
+            props.color = defaultColor;
+        }
+
+        if (!!config && !!config.opacity && typeof config.opacity.value === 'number') {
+            props.opacity = config.opacity.value;
         }
 
         switch (chartType) {
@@ -402,20 +546,14 @@ export default class extends React.Component {
     };
 
     renderCumulative = () => {
-        const { config } = this.props.options;
         let cumulative;
 
         if (this.chartWithCumulative()) {
-            const { documents, chartFields } = this.state,
-                { axis, values } = chartFields,
-                scale = {
-                    dataKey: `${values.value.name}_cumulative`,
-                    alias: `ACUM(${!!values.alias? values.alias: values.value.name}, "${config.cumulative.value}")`,
-                    formatter: v => v.toFixed(1)
-                };
+            const { chartFields } = this.state,
+                { axis, values } = chartFields;
 
             cumulative = (
-                <View data={documents} scale={scale}>
+                <div>
                     <Axis dataKey={`${values.value.name}_cumulative`} position={'right'}/>
                     <Line
                         position={`_id_${axis.value.name}*${values.value.name}_cumulative`}
@@ -426,7 +564,7 @@ export default class extends React.Component {
                         style={{ stroke: '#fff', lineWidth: 1 }}
                         shape={'circle'}
                         color={'#969696'}/>*/}
-                </View>
+                </div>
             );
         }
 
@@ -434,7 +572,7 @@ export default class extends React.Component {
     };
 
     _render = () => {
-        const {loading, minValues, maxValues} = this.state;
+        const {loading} = this.state;
 
         if (loading) {
             return null;
@@ -443,7 +581,11 @@ export default class extends React.Component {
         const {width, height, options} = this.props,
             { config } = options,
             {documents, chartFields} = this.state,
-            { axis, values, color } = chartFields;
+            { axis, values, color } = chartFields,
+            coordDirection = (
+                !!config && !!config.coordDirection &&
+                !!config.coordDirection.value
+            )? config.coordDirection.value: undefined;
 
         let axisScale = {
                 dataKey: `_id_${axis.value.name}`,
@@ -455,7 +597,11 @@ export default class extends React.Component {
                 // min: minValues,
                 // max: maxValues,
                 sync: true
-            };
+            },
+            axisTitle = {
+                text: !!axis.alias? axis.alias: axis.value.name
+            },
+            padding;
 
         if (!!values.formatter) {
             valuesScale.formatter = helpers[values.formatter];
@@ -469,6 +615,26 @@ export default class extends React.Component {
             valuesScale.type = config.scale.value;
         }
 
+        if (!!config && !!config.padding && !!config.padding.value) {
+            padding = config.padding.value.split(',').map(e => parseInt(e));
+        }
+
+        if (!!config && !!config.axisTitleOffset && !!config.axisTitleOffset.value) {
+            axisTitle.offset = config.axisTitleOffset.value;
+        }
+
+        let scale = [axisScale, valuesScale];
+        const wc = this.chartWithCumulative(),
+            wf = this.chartWithFormula();
+
+        if (wc) {
+            scale.push({
+                dataKey: `${values.value.name}_cumulative`,
+                alias: `ACUM(${!!values.alias? values.alias: values.value.name}, '${config.cumulative.value}')`,
+                formatter: v => helpers.percentageInt(v)
+            });
+        }
+
         return (
             <div style={{width, height}}>
                 <Chart
@@ -476,24 +642,30 @@ export default class extends React.Component {
                     width={width}
                     height={height}
                     data={documents}
-                    padding={[
-                        20, // top
-                        (this.chartWithFormula() || this.chartWithCumulative())? 80: 20, // right
-                        !!color && !!color.value? 95: 65, // bottom
-                        80 // left
-                    ]}
-                    scale={[axisScale, valuesScale]}>
+                    padding={
+                        !!padding?
+                            padding:
+                            [
+                                20, // top
+                                (wf || wc)? 80: 20, // right
+                                !!color && !!color.value? 95: 65, // bottom
+                                80 // left
+                            ]
+                    }
+                    scale={scale}>
                     <Tooltip/>
                     <Axis
                         dataKey={`_id_${axis.value.name}`}
-                        title={{text: !!axis.alias? axis.alias: axis.value.name}}/>
+                        title={axisTitle}/>
                     <Legend/>
-                    <View data={documents} scale={[axisScale, valuesScale]}>
-                        {this.renderChart()}
-                    </View>
-                    {/*this.renderAnalytic(valuesScale)*/}
+                    {
+                        !!coordDirection &&
+                        <Coord type={'rect'} direction={coordDirection} />
+                    }
+                    {this.renderChart()}
                     {this.renderFormula()}
                     {this.renderCumulative()}
+                    { !wf && <Brush canvas={null} type={'x'} /> }
                 </Chart>
             </div>
         );
@@ -509,3 +681,4 @@ export default class extends React.Component {
         );
     }
 }
+

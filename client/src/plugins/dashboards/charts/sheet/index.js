@@ -1,11 +1,11 @@
 import React from 'react';
 import { Table, Tag, Tree } from 'antd';
 import { DragSource, DropTarget } from 'react-dnd';
-import {ItemTypes} from "../../new-dashboard/new-chart/constants";
-import rp from "request-promise";
-import auth from "../../../../auth";
+import rp from 'request-promise';
+import auth from '../../../../auth';
 import _ from 'lodash';
-import helpers from "../../../../helpers";
+import helpers from '../../../../helpers';
+import {Global} from "viser-react";
 
 const { TreeNode } = Tree;
 const fieldSource = {
@@ -13,6 +13,10 @@ const fieldSource = {
         // console.log(props);
         return props;
     }
+};
+const ItemTypes = {
+    FIELD: 'field',
+    COLUMN: 'column'
 };
 
 function collect(connect, monitor) {
@@ -25,7 +29,7 @@ function collect(connect, monitor) {
 const Column = DragSource(ItemTypes.COLUMN, fieldSource, collect)(
     class extends React.Component {
         render() {
-            const { connectDragSource, isDragging, field } = this.props;
+            const { connectDragSource, isDragging, field, color } = this.props;
             return connectDragSource(
                 <div
                     style={{
@@ -34,7 +38,7 @@ const Column = DragSource(ItemTypes.COLUMN, fieldSource, collect)(
                         cursor: 'move',
                         marginBottom: 8
                     }}>
-                    <Tag color={'black'} style={{width: '100%'}}>{!!field.alias? field.alias: field.name}</Tag>
+                    <Tag color={color} style={{width: '100%'}}>{!!field.alias? field.alias: field.name}</Tag>
                 </div>
             );
         }
@@ -71,14 +75,14 @@ const GroupBy = DropTarget(ItemTypes.COLUMN, squareTarget, collect2)(
         };
 
         render() {
-            const { fields, connectDropTarget } = this.props;
+            const { fields, connectDropTarget, color } = this.props;
 
             return connectDropTarget(
-                <div className="option-content" style={{textAlign: "left"}}>
+                <div className='option-content' style={{textAlign: 'left'}}>
                     Agrupar:&nbsp;
                     {
                         fields.map(field =>
-                            <Tag key={field.name} onClose={() => this.handleRemoveField(field.name)} closable color={'black'}>{field.name}</Tag>
+                            <Tag key={field.name} onClose={() => this.handleRemoveField(field.name)} closable color={color}>{field.name}</Tag>
                         )
                     }
                 </div>
@@ -93,11 +97,15 @@ export default class extends React.Component {
         documents: [],
         loading: false,
         numberOfDocuments: 0,
-        current: 0
+        current: 0,
+        defaultColor: 'black'
     };
 
     async componentDidMount() {
-        // await this.loadAll();
+        if (!!Global && 'defaultColor' in Global) {
+            const { defaultColor } = Global;
+            this.setState({defaultColor})
+        }
     }
 
     loadAll = async (match=undefined, selector={limit: 10, skip: 0}) => {
@@ -235,7 +243,7 @@ export default class extends React.Component {
     };
 
     getFormatter = (formatter) => {
-        if (typeof formatter === "string") {
+        if (typeof formatter === 'string') {
             return helpers[formatter];
         }
         else if (this.props.makeFormatter instanceof Function) {
@@ -244,11 +252,12 @@ export default class extends React.Component {
     };
 
     getColumns = () => {
-        const { options } = this.props,
+        const { defaultColor } = this.state,
+            { options } = this.props,
             { columns } = options.fields;
 
         return columns.value.map(col => ({
-            title: <Column field={col}/>,
+            title: <Column field={col} color={defaultColor}/>,
             dataIndex: col.name,
             key: col.name,
             render: !!col.formatter && (value => this.getFormatter(col.formatter)(value)),
@@ -370,7 +379,7 @@ export default class extends React.Component {
     };
 
     render() {
-        const { fields, loading, data, numberOfDocuments, current } = this.state,
+        const { fields, loading, data, numberOfDocuments, current, defaultColor } = this.state,
             { documents } = this.state;
 
         // console.log(width, height);
@@ -383,6 +392,7 @@ export default class extends React.Component {
                             loading={loading}
                             title={() => (
                                 <GroupBy
+                                    color={defaultColor}
                                     fields={fields}
                                     onDrop={this.handleAddField}
                                     onRemove={this.handleRemoveField}/>

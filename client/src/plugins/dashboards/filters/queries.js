@@ -3,7 +3,7 @@ export default {
         return `
 {
   hub(id: ${hubId}) {
-    dataSet(id: "${dataSetId}") {
+    dataSet(id: '${dataSetId}') {
       id
       name
       schema

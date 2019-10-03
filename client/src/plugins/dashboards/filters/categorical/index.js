@@ -1,8 +1,8 @@
 import React from 'react';
 import {Select, Typography, Tooltip} from 'antd';
 import auth from '../../../../auth';
-import rp from "request-promise";
-import getData from "../../charts/data";
+import rp from 'request-promise';
+import getData from '../../charts/data';
 
 const { Text } = Typography;
 
@@ -41,61 +41,6 @@ export default class extends React.Component {
 
         this.setState({ mode });
     }
-
-    /*async componentDidUpdate(prevProps, prevState) {
-        // console.log('#show', prevProps.filters, this.props.filters, prevState.filters);
-        const { filterContext } = this.props;
-
-        if (filterContext === 'pane' && !_.isEqual(this.state.filters, this.props.filters)) {
-            const { filters, itemId, filter } = this.props,
-                { multipleSelection } = filter,
-                mode = !!multipleSelection? (multipleSelection? 'multiple': 'default'): 'default';
-
-            // console.log('#set filter', itemId, filters);
-            await this.setState({filters});
-
-            let match = {};
-
-            if (!_.isEmpty(filters)) {
-                _.forEach(
-                    _.pickBy(
-                        filters,
-                        (targetFilter, targetFilterId) => targetFilterId === itemId
-                    ),
-                    targetFilter => {
-                        // console.log('#mode', mode);
-
-                        if (this.state.value !== targetFilter[filter.field]) {
-                            const tf = targetFilter[filter.field];
-
-                            this.setState({
-                                value: mode === 'default' ?
-                                    tf :
-                                    (
-                                        (!!tf && '$in' in tf) ?
-                                            tf.$in :
-                                            undefined
-                                    )
-                            });
-                        }
-                    }
-                );
-
-                _.forEach(
-                    _.pickBy(
-                        filters,
-                        (targetFilter, targetFilterId) => targetFilterId !== itemId && !(filter.field in targetFilter)
-                    ),
-                    targetFilter => match = {...match, ...targetFilter}
-                );
-            }
-            else {
-                this.setState({ value: undefined });
-            }
-            // console.log('#match', match);
-            this.loadData(!_.isEmpty(match) && { $match: match });
-        }
-    }*/
 
     loadData = async (match=undefined) => {
         await this.setState({loading: true});
@@ -152,7 +97,7 @@ export default class extends React.Component {
                             $regex: typedValue,
                             $options: 'i'
                         },
-                        ...match.$match
+                        ...(!!match && !!match.$match? match.$match: {})
                     }
                 });
             }
@@ -166,7 +111,7 @@ export default class extends React.Component {
             stages.unshift(match);
         }
 
-        // console.log('stages', stages);
+        // console.log('#stages', stages);
 
         const data = await rp({
             method: 'POST',
@@ -182,10 +127,10 @@ export default class extends React.Component {
 
         if (!!data && data.length === 1) {
             const categories = data[0].categories.map(c => c === '' ? 'NA' : c);
-            await this.setState({categories});
+            await this.setState({categories, match});
         }
         else {
-            await this.setState({categories: []});
+            await this.setState({categories: [], match});
         }
     };
 
@@ -233,7 +178,7 @@ export default class extends React.Component {
     handleSearch = async (typedValue) => {
         // console.log('search', value);
         // await this.setState({value});
-        await this.loadCategories(undefined, typedValue);
+        await this.loadCategories(this.state.match, typedValue);
     };
 
     render() {

@@ -1,4 +1,10 @@
-import {ADD_FILTER, REMOVE_FILTER, INIT_STORE, REMOVE_PANE_FILTERS} from './actions';
+import {
+    ADD_FILTER,
+    REMOVE_FILTER,
+    INIT_STORE,
+    REMOVE_PANE_FILTERS,
+    SET_PANE_FILTERS
+} from './actions';
 import _ from 'lodash';
 
 export const filters = (state={}, action) => {
@@ -11,6 +17,17 @@ export const filters = (state={}, action) => {
             {itemId, dataSetId, paneId, filter} = payload;
         let paneFilters = paneId in state ? state[paneId] : {},
             dataSetFilters = dataSetId in paneFilters ? paneFilters[dataSetId] : {};
+
+        console.log({
+            ...state,
+            [paneId]: {
+                ...paneFilters,
+                [dataSetId]: {
+                    ...dataSetFilters,
+                    [itemId]: filter
+                }
+            }
+        });
 
         return {
             ...state,
@@ -59,6 +76,12 @@ export const filters = (state={}, action) => {
             return newState;
         }
         return state;
+    }
+    else if (actionType === SET_PANE_FILTERS) {
+        const { payload } = action,
+            { paneId, filters } = payload;
+
+        return {...state, [paneId]: filters};
     }
     else {
         return state;

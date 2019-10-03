@@ -2,8 +2,8 @@ import React from 'react';
 import DeckGL, {FlyToInterpolator} from 'deck.gl';
 import {HeatmapLayer} from '@deck.gl/aggregation-layers';
 import MapGL from 'react-map-gl';
-import rp from "request-promise";
-import auth from "../../../../../auth";
+import rp from 'request-promise';
+import auth from '../../../../../auth';
 import _ from 'lodash';
 
 const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoidGVtcGhpemEiLCJhIjoiY2pjODNlYXZlMDBuZTJ3cWhmNXd6bWdtYyJ9.6b5c0hraYC08xGiqW66m4w';

@@ -2,9 +2,10 @@ import React from 'react';
 import {Modal, Button, Radio, Typography, Dropdown, Menu, message} from 'antd';
 import moment from 'moment';
 import rp from 'request-promise';
-import auth from "../../../auth";
+import auth from '../../../auth';
 import FileSaver from 'file-saver';
 import Papa from 'papaparse';
+import _ from 'lodash';
 
 const { Title } = Typography;
 
@@ -20,7 +21,8 @@ export default class extends React.Component {
         if (prevProps.visible !== this.props.visible) {
             this.setState({
                 visible: this.props.visible,
-                item: this.props.item
+                item: this.props.item,
+                filters: this.props.filters
             });
         }
     }
@@ -29,22 +31,47 @@ export default class extends React.Component {
         await this.setState({ downloading: true });
 
         try {
-            const {ext} = this.state,
-                {dataSet} = this.state.item,
-                data = await rp({
-                    method: 'POST',
-                    uri: `${auth.getHost()}/dataset/${dataSet.id}`,
-                    headers: {
-                        'Authorization': `Bearer ${auth.getToken()}`
-                    },
-                    json: true
-                }),
+            const { item, ext, downloadType, filters } = this.state,
+                {dataSet, options} = item,
                 fileName = `${dataSet.id}_${moment().format('YYYY_MM_DD_hh_mm_ss')}.${ext}`;
 
+            let opt = {
+                method: 'POST',
+                uri: `${auth.getHost()}/dataset/${dataSet.id}`,
+                headers: {
+                    'Authorization': `Bearer ${auth.getToken()}`
+                },
+                json: true
+            };
+
+            let where = {};
+
+            if ('filters' in options && options.filters.length > 0) {
+                where = JSON.parse(options.filters);
+            }
+
+            if (downloadType === 'filtered-pane' && !!filters && !_.isEmpty(filters) && dataSet.id in filters) {
+                _.forEach(
+                    filters[dataSet.id],
+                    itemFilters => _.forEach(
+                        itemFilters,
+                        (filter, field) => where = {...where, [field]: filter}
+                    )
+                );
+            }
+
+            if (!_.isEmpty(where)) {
+                // console.log(where);
+                opt.body = {
+                    where
+                };
+            }
+
+            const data = await rp(opt);
 
             if (!!data && data.length) {
                 FileSaver.saveAs(
-                    ext === 'json' ?
+                    ext === 'json'?
                         new Blob(
                             [JSON.stringify(data, null, 2)],
                             {type: 'application/json'}
@@ -136,7 +163,7 @@ export default class extends React.Component {
                     value={downloadType}
                     onChange={e => this.setState({downloadType: e.target.value})}>
                     <Radio style={radioStyle} value={'all'}>Todos los datos.</Radio>
-                    <Radio disabled style={radioStyle} value={'filtered-pane'}>Solo los datos seleccionados por los filtros de la página.</Radio>
+                    <Radio style={radioStyle} value={'filtered-pane'}>Solo los datos seleccionados por los filtros de la página.</Radio>
                     {/*<Radio style={radioStyle} value={'filtered-chart'}>Solo los datos mostrados en el gráfico.</Radio>*/}
                 </Radio.Group>
             </Modal>

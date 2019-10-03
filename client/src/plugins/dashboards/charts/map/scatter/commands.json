@@ -1,19 +1,19 @@
 {
-  "name": "eventHandler",
-  "args": {
-    "onClick": [
+  'name': 'eventHandler',
+  'args': {
+    'onClick': [
       {
-        "name": "goToPane",
-        "args": {
-          "paneId": 2
+        'name': 'goToPane',
+        'args': {
+          'paneId': 2
         }
       },
       {
-        "name": "setFilter",
-        "args": {
-          "dataSetId": "obratransparente",
-          "field": "id",
-          "paneId": 2
+        'name': 'setFilter',
+        'args': {
+          'dataSetId': 'obratransparente',
+          'field': 'id',
+          'paneId': 2
         }
       }
     ]

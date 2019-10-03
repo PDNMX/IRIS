@@ -1,8 +1,8 @@
-import React from "react";
+import React from 'react';
 import {Tooltip, Card, message, Tabs, Button, Icon, Dropdown, Menu, Result, Divider} from 'antd';
-import { WidthProvider, Responsive } from "react-grid-layout";
+import { WidthProvider, Responsive } from 'react-grid-layout';
 import ChartWrapper from '../chart-wrapper';
-import _ from "lodash";
+import _ from 'lodash';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import './styles.css';
@@ -10,17 +10,18 @@ import rp from 'request-promise';
 import auth from '../../../auth';
 import {connect} from 'react-redux';
 import { SizeMe } from 'react-sizeme'
-import {addFilter, removeFilter, initFilters, removePaneFilters} from "../store/actions";
+import {addFilter, removeFilter, initFilters, removePaneFilters, setPaneFilters} from '../store/actions';
 import DownloadModal from '../download-modal';
 import htmlToImage from 'html-to-image';
 import FileSaver from 'file-saver';
-import moment from "moment";
+import moment from 'moment';
+import {Global} from 'viser-react';
 
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 const { TabPane } = Tabs;
 
-export default connect(filters => ({filters}), {addFilter, removeFilter, initFilters, removePaneFilters})(
+export default connect(filters => ({filters}), {addFilter, removeFilter, initFilters, removePaneFilters, setPaneFilters})(
     class extends React.Component {
         state = {
             columnWidth: 0,
@@ -42,6 +43,13 @@ export default connect(filters => ({filters}), {addFilter, removeFilter, initFil
             await this.setState({loading: false});
         }
 
+        async componentDidUpdate() {
+            if (!_.isEqual(this.props.filters, this.state.filters)) {
+                console.log('#ds-filters', this.props.filters);
+                await this.setState({filters: this.props.filters});
+            }
+        }
+
         handleLoadDashboard = async (dashboardId) => {
             try {
                 const chart = await rp({
@@ -51,12 +59,23 @@ export default connect(filters => ({filters}), {addFilter, removeFilter, initFil
                 });
 
                 if (!!chart) {
-                    const {panes, breakpoints, activePaneId, _id, createdAt} = chart,
+                    const {panes, breakpoints, activePaneId, _id, createdAt, theme} = chart,
                         filters = !!chart.filters ? JSON.parse(chart.filters) : {};
 
                     if (this.props.initFilters instanceof Function) {
                         // console.log('filters loaded', filters);
                         this.props.initFilters(filters);
+                    }
+
+                    if (!!theme) {
+                        Global.registerTheme('theme', theme);
+                        Global.setTheme('theme');
+                        window.less
+                            .modifyVars({'@primary-color': theme.defaultColor})
+                            .then(() => {})
+                            .catch(error => {
+                                message.error('Failed to update theme');
+                            });
                     }
 
                     panes.forEach(pane =>
@@ -128,7 +147,10 @@ export default connect(filters => ({filters}), {addFilter, removeFilter, initFil
                     { items } = targetPane;
 
                 _.forEach(
-                    _.pickBy(items, item => item.dataSetId === dataSetId && item.chartType === 'filter'),
+                    _.pickBy(
+                        items,
+                        item => item.dataSetId === dataSetId && item.chartType === 'filter' && item.field === field
+                    ),
                     (item, itemId) => {
                         const { field } = item;
 
@@ -145,6 +167,72 @@ export default connect(filters => ({filters}), {addFilter, removeFilter, initFil
             }
             else {
                 message.error(`El panel ${paneId} no existe.`);
+            }
+        };
+
+        clonePaneFilters = ({ sourcePaneId, targetPaneId }, value=undefined) => {
+            const numPanes = this.state.panes.length;
+
+            if (targetPaneId >= 0 && targetPaneId < numPanes) {
+                const { panes, filters } = this.state,
+                    targetPane = panes[targetPaneId],
+                    items = _.pickBy(targetPane.items, item => item.chartType === 'filter');
+
+                // console.log(filters, items);
+
+                if (!!filters && !_.isEmpty(items)) {
+                    const sourceFilters = filters[sourcePaneId];
+
+                    console.log(sourcePaneId, sourceFilters);
+
+                    if (!!sourceFilters && !_.isEmpty(sourceFilters)) {
+                        let newFilters = {};
+
+                        // console.log('#before', newFilters);
+
+                        _.forEach(sourceFilters, (dateSet, dataSetId) => {
+                            _.forEach(dateSet, (item, itemId) => {
+                                _.forEach(item, (filter, field) => {
+                                    // console.log(dataSetId, itemId, field, filter);
+
+                                    if (!(dataSetId in newFilters)) {
+                                        newFilters[dataSetId] = {};
+                                    }
+
+                                    _.forEach(
+                                        _.pickBy(items, item => item.dataSetId === dataSetId && item.field === field),
+                                        (t_item, t_itemId) => {
+                                            // console.log(dataSetId, t_itemId, [field], filter);
+
+                                            if (t_itemId in newFilters[dataSetId]) {
+                                                newFilters[dataSetId][t_itemId] = {
+                                                    ...newFilters[dataSetId][t_itemId],
+                                                    [field]: filter
+                                                };
+                                                // console.log('a', dataSetId, t_itemId, [field], filter);
+                                            }
+                                            else {
+                                                newFilters[dataSetId][t_itemId] = {
+                                                    [field]: filter
+                                                };
+                                                // console.log('b', dataSetId, t_itemId, [field], filter);
+                                            }
+                                        }
+                                    );
+                                });
+                            })
+                        });
+
+                        // console.log('#after', newFilters);
+
+                        if (this.props.setPaneFilters instanceof Function) {
+                            this.props.setPaneFilters({paneId: targetPaneId, filters: newFilters});
+                        }
+                    }
+                }
+            }
+            else {
+                message.error(`El panel ${targetPaneId} no existe.`);
             }
         };
 
@@ -169,6 +257,8 @@ export default connect(filters => ({filters}), {addFilter, removeFilter, initFil
                     else {
                         return value => value;
                     }
+                case 'button':
+                    return value => this.executeCommands(formatter.actions, value);
                 default:
                     return value => value;
             }
@@ -191,7 +281,7 @@ export default connect(filters => ({filters}), {addFilter, removeFilter, initFil
         getChartMenu = (item, key) => {
             return (
                 <Menu>
-                    <Menu.Item onClick={() => this.setState({showDownloadModal: true, selectedItem: item})}>
+                    <Menu.Item onClick={() => this.setState({showDownloadModal: true, selectedItem: {...item, itemId: key}})}>
                         <Icon type={'download'}/> Datos
                     </Menu.Item>
                     <Menu.Item onClick={() => this.downloadChart(item, key)}>
@@ -203,17 +293,64 @@ export default connect(filters => ({filters}), {addFilter, removeFilter, initFil
 
         getDropdown = (item, key) => {
             return (
-                <Dropdown overlay={this.getChartMenu(item, key)}>
+                <span>
+                    {this.getListenButton(item)}
+                    <Dropdown overlay={this.getChartMenu(item, key)}>
                     <Button
                         size={'small'}
                         type={'link'}
                         icon={'ellipsis'} />
-                </Dropdown>
+                    </Dropdown>
+                </span>
+            );
+        };
+
+        getListenButton = (item) => {
+            if (!item.options) {
+                return null;
+            }
+
+            const { options } = item,
+                { config } = options,
+                listen = (!config || !config.listen) || (!!config && !!config.listen && config.listen.value);
+
+            return !listen && (
+                <span>
+                    <Tooltip title={'El gráfico no escucha los filtros'} placement={'bottom'}>
+                        <Icon type={'filter'} style={{color: '#8C8C8C'}}/>
+                    </Tooltip>
+                    <Divider type={'vertical'}/>
+                </span>
+            );
+        };
+
+        createBorderLessElement = (item, key, element) => {
+            return (
+                <div key={key} style={{width: '100%', height: '100%'}}>
+                    <SizeMe
+                        monitorWidth={true}
+                        monitorHeight={true}
+                        render={({size}) =>
+                            <div style={{width: '100%', height: '100%'}}>
+                                <ChartWrapper
+                                    dashboardId={this.state.dashboardId}
+                                    size={size}
+                                    data={item}
+                                    makeFormatter={this.handleMakeFormatter}
+                                    element={element}/>
+                            </div>
+                        }
+                    />
+                </div>
             );
         };
 
         createElement = (item, key) => {
             const element = this.getElementLayout(key, item);
+
+            if (['divider', 'button'].includes(item.chartType)) {
+                return this.createBorderLessElement(item, key, element);
+            }
 
             return (
                 <Card
@@ -225,7 +362,7 @@ export default connect(filters => ({filters}), {addFilter, removeFilter, initFil
                             {item.title}
                         </div>
                     }
-                    bodyStyle={{height: !!item.title? "calc(100% - 40px)": "100%", width: '100%'}}
+                    bodyStyle={{height: !!item.title? 'calc(100% - 40px)': '100%', width: '100%'}}
                     extra={!!item.title && this.getDropdown(item, key)}>
                     {
                         (!item.title && item.chartType !== 'filter') &&
@@ -327,7 +464,8 @@ export default connect(filters => ({filters}), {addFilter, removeFilter, initFil
                 breakpoints,
                 loading,
                 showDownloadModal,
-                selectedItem
+                selectedItem,
+                filters
             } = this.state;
 
             return (
@@ -352,7 +490,7 @@ export default connect(filters => ({filters}), {addFilter, removeFilter, initFil
                                                     key={i.toString()}>
                                                     <div id={`pane-${i}`}>
                                                         <ResponsiveReactGridLayout
-                                                            className={`grid-layout`}
+                                                            className={'grid-layout'}
                                                             cols={breakpoints}
                                                             rowHeight={rowHeight}
                                                             layouts={JSON.parse(JSON.stringify(pane.layouts))}
@@ -371,13 +509,14 @@ export default connect(filters => ({filters}), {addFilter, removeFilter, initFil
                                     <Result
                                         status={'404'}
                                         title={'El tablero que buscas no existe'}
-                                        subTitle={`Lo sentimos, el tablero "${dashboardId}" no existe.`}/>
+                                        subTitle={`Lo sentimos, el tablero '${dashboardId}' no existe.`}/>
                             }
                         </div>
                     }
                     <DownloadModal
                         visible={showDownloadModal}
                         item={selectedItem}
+                        filters={!!filters && filters[activePaneId]}
                         onClose={() => this.setState({showDownloadModal: false})}/>
                 </div>
             );

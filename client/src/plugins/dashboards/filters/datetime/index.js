@@ -2,7 +2,7 @@ import React from 'react';
 import {Typography, Tooltip, DatePicker, Spin, Icon} from 'antd';
 import moment from 'moment';
 import auth from '../../../../auth';
-import rp from "request-promise";
+import rp from 'request-promise';
 
 
 const { Text } = Typography;
@@ -66,10 +66,20 @@ export default class extends React.Component {
                 max = moment(data[0].max);
 
             // console.log('[min, max]', min.format(), max.format());
-            await this.setState({ value: [min, max], min, max, loading: false });
+            await this.setState({
+                value: [min, max],
+                min,
+                max,
+                loading: false
+            });
         }
         else {
-            await this.setState({ value: [], loading: false });
+            await this.setState({
+                value: [],
+                min: moment(),
+                max: moment(),
+                loading: false
+            });
         }
     };
 
@@ -107,7 +117,7 @@ export default class extends React.Component {
     };
 
     render() {
-        const { value, loading } = this.state,
+        const { value, min, max, loading } = this.state,
             { dataSetId, field, alias } = this.props.filter;
 
         return (
@@ -118,6 +128,7 @@ export default class extends React.Component {
                     </Tooltip>
                 </div>
                 <RangePicker
+                    disabledDate={currentDate => currentDate < min || currentDate > max}
                     value={value}
                     style={{width: '100%'}}
                     onChange={this.handleChange} />

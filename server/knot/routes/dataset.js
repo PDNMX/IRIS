@@ -75,6 +75,19 @@ router.post('/:dataSetId', async (req, res) => {
     }
 });
 
+router.post('/:dataSetId/data', async (req, res) => {
+    const { dataSetId } = req.params,
+        data = req.body;
+
+    if (!!knot) {
+        await knot.collection(dataSetId).insertOne(data);
+        res.json(data);
+    }
+    else {
+        res.status(500).send('knot database not found!');
+    }
+});
+
 router.post('/:dataSetId/aggregate', async (req, res) => {
     const { dataSetId } = req.params,
         aggregation = req.body;
@@ -85,6 +98,7 @@ router.post('/:dataSetId/aggregate', async (req, res) => {
             res.json(response);
         }
         catch (e) {
+            console.log(JSON.stringify(aggregation));
             console.log(e);
             res.status(500).send(`Error aggregating ${dataSetId}!`);
         }

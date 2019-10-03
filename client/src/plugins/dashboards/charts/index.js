@@ -4,18 +4,25 @@ import TimeLine from './time-line';
 import Cartesian from './catersian';
 import DoubleAxis from './double-axis';
 import Pie from './pie';
+import TreeMap from './tree-map';
+import Gauges from './gauges';
 import Radar from './radar';
 import Statistic from './statistic';
 import Description from './description';
 import Map from './map/scatter';
 import HeatMap from './map/heat-map';
+import GeoJsonPolygons from './map/geo-json-polygons';
 import Text from './text';
 import Image from './image';
+import KnotButton from './button';
+import KnotDivider from './divider';
 import Filter from '../filters';
-import { Tag, Icon } from "antd";
-import {connect} from "react-redux";
-import {mapStateToProps} from "./utils";
-import _ from "lodash";
+import { Tag, Icon } from 'antd';
+import {connect} from 'react-redux';
+import {mapStateToProps} from './utils';
+import _ from 'lodash';
+import {Global} from "viser-react";
+
 
 const Listener = connect(mapStateToProps)(
     class extends React.Component {
@@ -45,17 +52,22 @@ const Listener = connect(mapStateToProps)(
 
         getMatch = () => {
             const { filters, options } = this.props,
+                { config } = options,
                 optionsFilters = !!options.filters && JSON.parse(options.filters);
 
             let values = {};
 
-            _.forEach(filters, item =>
-                _.forEach(item, (value, field) => {
-                    if (!!value) {
-                        values = {...values, [field]: value};
-                    }
-                })
-            );
+            if ((!config || !config.listen) || (!!config && !!config.listen && config.listen.value)) {
+                // console.log('#listen', config.listen.value);
+
+                _.forEach(filters, item =>
+                    _.forEach(item, (value, field) => {
+                        if (!!value) {
+                            values = {...values, [field]: value};
+                        }
+                    })
+                );
+            }
 
             let match = !_.isEmpty(values)? { $match: values }: undefined;
 
@@ -68,7 +80,6 @@ const Listener = connect(mapStateToProps)(
                 }
             }
 
-
             return match;
         };
 
@@ -78,34 +89,26 @@ const Listener = connect(mapStateToProps)(
             // console.log('prevState', prevState.filters);
             // console.log('state', this.state.filters);
             // console.log('--------------------------');
+            const { options } = this.props,
+                { config } = options,
+                listen = (!config || !config.listen) || (!!config && !!config.listen && config.listen.value);
 
-            if (!_.isEqual(this.state.filters, this.props.filters)) {
-                await this.setState({filters: this.props.filters});
-                await this.itemRef.current.loadData(this.getMatch());
-            }
-            else if (_.isEmpty(this.props.filters)) {
-                // await this.setState({filters: this.props.filters});
-                await this.itemRef.current.loadData();
+            if (listen) {
+                if (!_.isEqual(this.state.filters, this.props.filters)) {
+                    // console.log('#updated by filters changed!');
+                    await this.setState({filters: this.props.filters});
+                    await this.itemRef.current.loadData(this.getMatch());
+                } else if (_.isEmpty(this.props.filters)) {
+                    // await this.setState({filters: this.props.filters});
+                    // console.log('#updated by empty filters!');
+                    await this.itemRef.current.loadData();
+                }
             }
         }
 
-        getMatchStage = (match, filters) => {
-            if (!!filters && !_.isEmpty(filters)) {
-
-                if (!!match) {
-                    return {...match.$match, ...filters};
-                }
-                else {
-                    return { $match: filters };
-                }
-            }
-
-            return undefined;
-        };
-
         render() {
             const { chartType } = this.props,
-                chartProps = {...this.props, getMatchStage: this.getMatchStage};
+                chartProps = this.props;
 
             switch (chartType) {
                 case 'sheet':
@@ -130,6 +133,10 @@ const Listener = connect(mapStateToProps)(
                     return <DoubleAxis {...chartProps} ref={this.itemRef}/>;
                 case 'pie':
                     return <Pie {...chartProps} ref={this.itemRef}/>;
+                case 'treeMapDiagram':
+                    return <TreeMap {...chartProps} ref={this.itemRef}/>;
+                case 'gauges':
+                    return <Gauges {...chartProps} ref={this.itemRef}/>;
                 case 'radar':
                     return <Radar {...chartProps} ref={this.itemRef}/>;
                 case 'statistic':
@@ -140,6 +147,8 @@ const Listener = connect(mapStateToProps)(
                     return <Map {...chartProps} ref={this.itemRef}/>;
                 case 'heatMap':
                     return <HeatMap {...chartProps} ref={this.itemRef}/>;
+                case 'geoJsonPolygons':
+                    return <GeoJsonPolygons {...chartProps} ref={this.itemRef}/>;
             }
         }
     }
@@ -163,6 +172,10 @@ export default (itemId, data, dimensions, changeStatic, onChange=undefined, make
             return <Text {...dimensions} data={data} changeStatic={changeStatic} onChange={onChange}/>;
         case 'image':
             return <Image {...dimensions} data={data}/>;
+        case 'button':
+            return <KnotButton {...dimensions} data={data} makeFormatter={makeFormatter}/>;
+        case 'divider':
+            return <KnotDivider {...dimensions} data={data} makeFormatter={makeFormatter}/>;
         case 'filter':
             return <Filter itemId={itemId} filter={data} dimensions={dimensions} dataSetId={data.dataSetId} dashboardId={dashboardId}/>;
         default:
@@ -187,7 +200,7 @@ export default (itemId, data, dimensions, changeStatic, onChange=undefined, make
                             (filter, name) => (
                                 <Tag
                                     key={name}
-                                    color={'black'}>
+                                    color={Global.defaultColor}>
                                     <Icon type={'filter'}/> {name}: {renderFilterValue(filter)}
                                 </Tag>
                             )

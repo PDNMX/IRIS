@@ -2,6 +2,7 @@ export const ADD_FILTER = 'ADD_FILTER';
 export const REMOVE_FILTER = 'REMOVE_FILTER';
 export const INIT_STORE = 'INIT_STORE';
 export const REMOVE_PANE_FILTERS = 'REMOVE_PANE_FILTERS';
+export const SET_PANE_FILTERS = 'SET_PANE_FILTERS';
 
 export const addFilter = (filter) => ({
     type: ADD_FILTER,
@@ -21,4 +22,9 @@ export const initFilters = (filters) => ({
 export const removePaneFilters = (paneId) => ({
     type: REMOVE_PANE_FILTERS,
     payload: paneId
+});
+
+export const setPaneFilters = (filters) => ({
+    type:  SET_PANE_FILTERS,
+    payload: filters
 });

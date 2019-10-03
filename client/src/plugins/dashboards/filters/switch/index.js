@@ -1,7 +1,7 @@
 import React from 'react';
 import {Typography, Tooltip, Select} from 'antd';
-import {connect} from "react-redux";
-import {addFilter} from "../../store/actions";
+import {connect} from 'react-redux';
+import {addFilter} from '../../store/actions';
 
 const { Text } = Typography;
 

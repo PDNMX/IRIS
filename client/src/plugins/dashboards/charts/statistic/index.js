@@ -56,7 +56,7 @@ export default class extends React.Component {
             <div style={{textAlign: 'left'}}>
                 <Statistic
                     title={this.getTitle(variable)}
-                    prefix={loading && <Spin indicator={<Icon type="loading" spin/>} />}
+                    prefix={loading && <Spin indicator={<Icon type='loading' spin/>} />}
                     value={this.renderValue(variable, value, loading)} />
             </div>
         );

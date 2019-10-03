@@ -1,10 +1,22 @@
-import rp from "request-promise";
-import auth from "../../../../auth";
+import rp from 'request-promise';
+import auth from '../../../../auth';
+import _ from 'lodash';
+
+const availableAnalytics = ['avg', 'min', 'max'];
+
+const getDateId = axis => {
+    const { operator } = axis,
+        parts = operator.split('-');
+
+    return (parts.length > 1)?
+        _.fromPairs(parts.map(p => [p, { [`$${p}`]: `$${axis.value.name}` }])):
+        { [`$${axis.operator}`]: `$${axis.value.name}` };
+};
 
 const getStageId = ({axis, color}) => {
-
+    // todo: validate operator
     const axisId = (axis.value.type === 'datetime' && !!axis.operator && !!axis.operator.length > 0)?
-        { [`$${axis.operator}`]: `$${axis.value.name}` }:
+        getDateId(axis):
         `$${axis.value.name}`;
 
     // console.log('#axis:', axis, axisId);
@@ -37,20 +49,32 @@ const getSumByAxisStage = ({axis, values, color}, config) => {
         }
     };
 
+
     if (values.value instanceof Array) {
+        const v = _.find(values.value, v => !!v.operator),
+            opt = !!v? `$${v.operator}`: '$sum';
+
         values.value.map(field => {
             res.$group[field.name] = {
-                $sum : `$${field.name}`
+                [opt]: `$${field.name}`
             };
         });
     }
     else {
+        const { operator } = values,
+            opt = !!operator? `$${operator}`: '$sum';
+
         res.$group[values.value.name] = {
-            $sum : `$${values.value.name}`
+            [opt]: `$${values.value.name}`
         };
     }
 
-    if (!!config && !!config.analytic && !!config.analytic.value) {
+    if (
+        !!config &&
+        !!config.analytic &&
+        !!config.analytic.value &&
+        availableAnalytics.includes(config.analytic.value)
+    ) {
         let name;
 
         if (values.value instanceof Array) {
@@ -96,17 +120,20 @@ const getCartesianStage = (fields, config) => {
 };
 
 const getDoubleAxisStage = (fields) => {
-    const { axis, bars, lines } = fields;
+    const { axis, bars, lines } = fields,
+        axisId = (axis.value.type === 'datetime' && !!axis.operator && !!axis.operator.length > 0)?
+            /*{ [`$${axis.operator}`]: `$${axis.value.name}` }*/ getDateId(axis):
+            `$${axis.value.name}`;
 
     return {
         $group: {
-            _id: `$${axis.value.name}`,
-            [bars.value.name]: {
-                $sum : bars.value.type === 'string'? 1: `$${bars.value.name}`
-            },
-            [lines.value.name]: {
-                $sum : lines.value.type === 'string'? 1: `$${lines.value.name}`
-            }
+            _id: axisId,
+            [bars.value.name]: !!bars.operator?
+                { [`$${bars.operator}`]: `$${bars.value.name}` }:
+                { $sum: bars.value.type === 'string'? 1: `$${bars.value.name}` },
+            [lines.value.name]: !!lines.operator?
+                { [`$${lines.operator}`]: `$${lines.value.name}` }:
+                { $sum: lines.value.type === 'string'? 1: `$${lines.value.name}` }
         }
     };
 };
@@ -135,7 +162,7 @@ const getSumVariableStage = (v) => {
         $group: {
             _id: null,
             [v.value.name]: {
-                $sum : `$${v.value.name}`
+                $sum: `$${v.value.name}`
             }
         }
     }
