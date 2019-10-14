@@ -63,7 +63,7 @@ export default class extends React.Component {
         }
     };
 
-    loadData = async (match=undefined) => {
+    loadData = async (match=undefined, setLoading=true) => {
         const { dataSet, options, chartType } = this.props;
         let { fields, config } = options,
             { axis, values, color } = fields,
@@ -71,7 +71,9 @@ export default class extends React.Component {
             minValues = 0,
             maxValues = 0;
 
-        await this.setState({loading: true});
+        if (setLoading) {
+            await this.setState({loading: true});
+        }
 
         // console.log('filters', filters);
 
@@ -307,7 +309,13 @@ export default class extends React.Component {
         // console.log('chartFields', chartFields);
         // console.log('#documents: ', documents);
 
-        await this.setState({ documents, chartFields, minValues, maxValues, loading: false });
+        await this.setState({
+            documents,
+            chartFields,
+            minValues,
+            maxValues,
+            loading: setLoading? false: this.state.loading
+        });
     };
 
     getXScale = (axis) => {

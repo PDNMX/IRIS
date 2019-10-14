@@ -118,7 +118,7 @@ export default class extends React.Component {
 
     render() {
         const { value, min, max, loading } = this.state,
-            { dataSetId, field, alias } = this.props.filter;
+            { dataSetId, field, alias, showTime } = this.props.filter;
 
         return (
             <div style={{paddingLeft: 8, paddingRight: 8, textAlign: 'left'}}>
@@ -128,6 +128,7 @@ export default class extends React.Component {
                     </Tooltip>
                 </div>
                 <RangePicker
+                    showTime={showTime}
                     disabledDate={currentDate => currentDate < min || currentDate > max}
                     value={value}
                     style={{width: '100%'}}

@@ -40,13 +40,25 @@ const Listener = connect(mapStateToProps)(
         }
 
         async componentDidMount() {
-            const { dashboardId } = this.props;
+            const { dashboardId, options } = this.props,
+                { config } = options;
 
             if (!dashboardId) {
                 await this.itemRef.current.loadData(this.getMatch());
             }
             else if (!!dashboardId && _.isEmpty(this.state.filters)) {
                 await this.itemRef.current.loadData(this.getMatch());
+            }
+
+            if (!!config && !!config.interval && typeof config.interval.value === 'number') {
+                setInterval(
+                    async () => {
+                        if (!!this.itemRef && !!this.itemRef.current) {
+                            await this.itemRef.current.loadData(this.getMatch(), false)
+                        }
+                    },
+                    config.interval.value
+                );
             }
         }
 

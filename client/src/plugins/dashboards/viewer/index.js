@@ -498,7 +498,10 @@ export default connect(filters => ({filters}), {addFilter, removeFilter, initFil
                                                             onBreakpointChange={this.onBreakpointChange}
                                                             onWidthChange={this.onWidthChange}>
                                                             {
-                                                                _.map(pane.items, (item, key) => this.createElement(item, key))
+                                                                _.map(
+                                                                    _.pickBy(pane.items, item => item.paneId === i),
+                                                                    (item, key) => this.createElement(item, key)
+                                                                )
                                                             }
                                                         </ResponsiveReactGridLayout>
                                                     </div>
