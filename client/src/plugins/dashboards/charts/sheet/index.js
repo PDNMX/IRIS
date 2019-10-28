@@ -111,8 +111,11 @@ export default class extends React.Component {
     loadAll = async (match=undefined, selector={limit: 10, skip: 0}) => {
         const { dataSet } = this.props;
         // let { selector } = this.state;
-
-        await this.setState({ loading: true });
+        try{
+            await this.setState({ loading: true });
+        }catch (e) {
+            console.log(e)
+        }
 
         if (!!selector && !!match) {
             const { limit, skip } = selector;
@@ -153,7 +156,11 @@ export default class extends React.Component {
         }
         catch (e) {
             console.log(e);
-            await this.setState({ documents: [], loading: false });
+            try {
+                await this.setState({ documents: [], loading: false });
+            }catch (e) {
+                console.log(e)
+            }
         }
     };
 
@@ -213,7 +220,11 @@ export default class extends React.Component {
         }
         catch (e) {
             console.log(e);
-            await this.setState({documents: [], loading: false});
+            try{
+                await this.setState({documents: [], loading: false});
+            }catch (e) {
+                console.log(e)
+            }
         }
     };
 
@@ -222,22 +233,38 @@ export default class extends React.Component {
             { columns } = options.fields;
 
         // console.log('sheet filters', match);
-        await this.setState({match});
+        try {
+            await this.setState({match});
+        }catch (e) {
+            console.log(e)
+        }
 
         if (!!dataSet) {
             let { fields } = this.state;
 
             if (columns.value.length === fields.length) {
-                await this.setState({fields: []});
+                try{
+                    await this.setState({fields: []});
+                }catch (e) {
+                    console.log(e)
+                }
             }
 
             fields = this.state.fields;
 
             if (fields.length === 0) {
-                await this.loadAll(match, selector);
+                try{
+                    await this.loadAll(match, selector);
+                }catch (e) {
+                    console.log(e)
+                }
             }
             else {
-                await this.loadGroups();
+                try{
+                    await this.loadGroups();
+                }catch (e) {
+                    console.log(e)
+                }
             }
         }
     };
@@ -361,10 +388,13 @@ export default class extends React.Component {
             { match } = this.state;
 
         // console.log('#sorter: ', sorter);
-
-        await this.setState({
-            current: pagination.current
-        });
+        try{
+            await this.setState({
+                current: pagination.current
+            });
+        }catch (e) {
+            console.log(e)
+        }
 
         if (!_.isEmpty(sorter)) {
             selector = {
@@ -374,8 +404,11 @@ export default class extends React.Component {
                 }
             };
         }
-
-        await this.loadData(match, selector)
+        try{
+            await this.loadData(match, selector)
+        }catch (e) {
+            console.log(e)
+        }
     };
 
     render() {

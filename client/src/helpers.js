@@ -131,5 +131,8 @@ export default {
     },
     mathRound(v) {
         return Math.round(v);
+    },
+    suffix_days(v) {
+        return `${v} días`
     }
 }

@@ -1,3 +1,4 @@
+/*jslint evil: true */
 import React from 'react';
 import {
     Axis,
@@ -12,7 +13,7 @@ import {
     Tooltip,
     View,
     Coord,
-    Brush,
+    Brush,  
     Global
 } from 'viser-react';
 import { Skeleton } from 'antd';
@@ -44,16 +45,21 @@ export default class extends React.Component {
         // await this.loadData();
         if (!!Global && 'defaultColor' in Global) {
             const { defaultColor } = Global;
-            this.setState({defaultColor})
+            this.setState({
+                defaultColor,
+                secondaryColor: (!!Global.colors && Global.colors.length > 1)? Global.colors[1]: defaultColor
+            })
         }
     }
 
-    getCumulativeComparator = c => {
+    getComparator = c => {
         switch (c) {
             case 'lt':
                 return (a, b) => a < b;
             case 'lte':
                 return (a, b) => a <= b;
+            case 'eq':
+                return (a, b) => a === b;
             case 'gt':
                 return (a, b) => a > b;
             case 'gte':
@@ -63,7 +69,7 @@ export default class extends React.Component {
         }
     };
 
-    loadData = async (match=undefined, setLoading=true) => {
+    loadData = async (match=undefined) => {
         const { dataSet, options, chartType } = this.props;
         let { fields, config } = options,
             { axis, values, color } = fields,
@@ -71,9 +77,10 @@ export default class extends React.Component {
             minValues = 0,
             maxValues = 0;
 
-        if (setLoading) {
+        /*if (setLoading) {
             await this.setState({loading: true});
-        }
+        }*/
+        await this.setState({loading: true});
 
         // console.log('filters', filters);
 
@@ -93,6 +100,7 @@ export default class extends React.Component {
         }
 
         // console.log('data fields', values.value);
+        // console.log(match);
 
         let documents = await getData(
             'cartesian',
@@ -112,18 +120,28 @@ export default class extends React.Component {
                 d['__formula'] = func(d);
                 return d;
             });
+
+            let formulaName = formula.value;
+
+            values.value.forEach(v => {
+                if (!!v.alias && formula.value.includes(v.name)) {
+                    formulaName = formulaName.replace(new RegExp(v.name, 'g'), `[${v.alias}]`);
+                }
+            });
+
             // console.log('formulaData', formulaData);
-            this.setState({formulaData});
+            this.setState({formulaData, formulaName});
         }
 
         // console.log(documents);
         let withAnalytic = !!config && !!config.analytic && !!config.analytic.value;
+        const numberOfValues = values.value.length;
 
         if (
-            (values.value instanceof Array && values.value.length > 1) ||
+            (values.value instanceof Array && numberOfValues > 1) ||
             (
                 withAnalytic &&
-                values.value instanceof Array && values.value.length === 1
+                values.value instanceof Array && numberOfValues === 1
             )
         ) {
             if (axis.value.type === 'datetime' && !!axis.operator && axis.operator.split('-').length > 1) {
@@ -194,6 +212,7 @@ export default class extends React.Component {
 
             const data = dv.rows,
                 targetValueFormatter = _.find(values.value, v => !!v.formatter),
+                targetValueAlias = numberOfValues > 1? {alias: 'Conceptos'}: _.find(values.value, v => !!v.alias),
                 targetValueColor = _.find(values.value, v => !!v.alias);
 
             let newValues = {
@@ -223,6 +242,10 @@ export default class extends React.Component {
 
             if (!!targetValueFormatter) {
                 newValues.formatter = targetValueFormatter.formatter;
+            }
+
+            if (!!targetValueAlias) {
+                newValues.alias = targetValueAlias.alias
             }
 
             if (!!targetValueColor) {
@@ -284,7 +307,7 @@ export default class extends React.Component {
             maxValues = _.max(valueArray);
 
             if (!!config && !!config.cumulative && !!config.cumulative.value) {
-                const cmp = this.getCumulativeComparator(config.cumulative.value),
+                const cmp = this.getComparator(config.cumulative.value),
                     an = `_id_${axis.value.name}`,
                     vn = values.value[0].name,
                     cvn = `${values.value[0].name}_cumulative`,
@@ -314,7 +337,7 @@ export default class extends React.Component {
             chartFields,
             minValues,
             maxValues,
-            loading: setLoading? false: this.state.loading
+            loading: false// setLoading? false: this.state.loading
         });
     };
 
@@ -432,7 +455,7 @@ export default class extends React.Component {
                 return (
                     <div>
                         <Line {...props} size={2}/>
-                        <Point {...props} size={4} style={{ stroke: '#fff', lineWidth: 1 }} shape={'circle'}/>
+                        {/*<Point {...props} size={4} style={{ stroke: '#fff', lineWidth: 1 }} shape={'circle'}/>*/}
                         <Area {...props}/>
                     </div>
                 );
@@ -451,7 +474,7 @@ export default class extends React.Component {
     };
 
     renderAnalytic = (valuesScale) => {
-        const { chartFields, minValues, maxValues } = this.state,
+        const { chartFields } = this.state,
             { axis, values } = chartFields,
             { config } = this.props.options;
 
@@ -476,7 +499,8 @@ export default class extends React.Component {
                     { documents } = this.state,
                     x = `_id_${axis.value.name}`,
                     yp = `${valuesAux.value.name}_${value}`,
-                    y = valuesAux.value.name,
+                    y = valuesAux.value.name;
+                    /*
                     scale = [
                         {
                             dataKey: y,
@@ -487,6 +511,7 @@ export default class extends React.Component {
                             formatter: !! formatter && helpers[formatter]
                         }
                     ];
+                    */
                 analytic = (
                     <View
                         data={documents.map(d => ({[x]: d[x], [y]: d[yp]}))}
@@ -516,15 +541,15 @@ export default class extends React.Component {
     };
 
     renderFormula = () => {
-        const { config } = this.props.options;
+        // const { config } = this.props.options;
         let formula;
 
         if (this.chartWithFormula()) {
-            const { formulaData, chartFields } = this.state,
+            const { formulaData, formulaName, chartFields } = this.state,
                 { axis } = chartFields,
                 scale = {
                     dataKey: '__formula',
-                    alias: config.formula.value,
+                    alias: formulaName,
                     formatter: v => v.toFixed(2)
                 };
 
@@ -562,7 +587,10 @@ export default class extends React.Component {
 
             cumulative = (
                 <div>
-                    <Axis dataKey={`${values.value.name}_cumulative`} position={'right'}/>
+                    <Axis
+                        title={{text: 'Porcentaje', offset: 60}}
+                        dataKey={`${values.value.name}_cumulative`}
+                        position={'right'}/>
                     <Line
                         position={`_id_${axis.value.name}*${values.value.name}_cumulative`}
                         color={'#e22626'}/>
@@ -609,6 +637,10 @@ export default class extends React.Component {
             axisTitle = {
                 text: !!axis.alias? axis.alias: axis.value.name
             },
+            valuesTitle = {
+                text: !!values.alias? values.alias: values.value.name,
+                offset: 70
+            },
             padding;
 
         if (!!values.formatter) {
@@ -629,6 +661,10 @@ export default class extends React.Component {
 
         if (!!config && !!config.axisTitleOffset && !!config.axisTitleOffset.value) {
             axisTitle.offset = config.axisTitleOffset.value;
+        }
+
+        if (!!config && !!config.valuesTitleOffset && !!config.valuesTitleOffset.value) {
+            valuesTitle.offset = config.valuesTitleOffset.value;
         }
 
         let scale = [axisScale, valuesScale];
@@ -662,6 +698,9 @@ export default class extends React.Component {
                     }
                     scale={scale}>
                     <Tooltip/>
+                    <Axis
+                        dataKey={values.value.name}
+                        title={valuesTitle}/>
                     <Axis
                         dataKey={`_id_${axis.value.name}`}
                         title={axisTitle}/>

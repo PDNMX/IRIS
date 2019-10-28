@@ -45,7 +45,7 @@ export default connect(filters => ({filters}), {addFilter, removeFilter, initFil
 
         async componentDidUpdate() {
             if (!_.isEqual(this.props.filters, this.state.filters)) {
-                console.log('#ds-filters', this.props.filters);
+                //console.log('#ds-filters', this.props.filters);
                 await this.setState({filters: this.props.filters});
             }
         }
@@ -183,7 +183,7 @@ export default connect(filters => ({filters}), {addFilter, removeFilter, initFil
                 if (!!filters && !_.isEmpty(items)) {
                     const sourceFilters = filters[sourcePaneId];
 
-                    console.log(sourcePaneId, sourceFilters);
+                    //console.log(sourcePaneId, sourceFilters);
 
                     if (!!sourceFilters && !_.isEmpty(sourceFilters)) {
                         let newFilters = {};
@@ -367,7 +367,7 @@ export default connect(filters => ({filters}), {addFilter, removeFilter, initFil
                     {
                         (!item.title && item.chartType !== 'filter') &&
                         <div className={'item-title'}>
-                            {this.getDropdown(item)}
+                            {this.getDropdown(item, key)}
                         </div>
                     }
                     <SizeMe
@@ -390,7 +390,7 @@ export default connect(filters => ({filters}), {addFilter, removeFilter, initFil
 
         // We're using the cols coming back from this to calculate where to add new items.
         onBreakpointChange = (breakpoint, cols) => {
-            console.log('onBreakpointChange', breakpoint, cols);
+            //console.log('onBreakpointChange', breakpoint, cols);
 
             this.setState({
                 breakpoint,

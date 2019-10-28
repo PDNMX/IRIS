@@ -86,7 +86,7 @@ export default {
         })).start({result: []});
     },
     sendEmail(mailOptions, smtpConfig) {
-        console.log('SMTP', smtpConfig);
+        // console.log('SMTP', smtpConfig);
 
         if (!transporter) {
             transporter = nodemailer.createTransport(smtpConfig);

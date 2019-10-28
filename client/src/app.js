@@ -7,7 +7,7 @@ import auth from './auth';
 import 'moment/locale/es-do';
 import DashboardEditor from './plugins/dashboards';
 
-const { Header, Content, Sider, Footer } = Layout;
+const { Content, Footer } = Layout;
 
 class AppLayout extends React.Component {
     constructor(props) {

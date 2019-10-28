@@ -44,8 +44,15 @@ export default class extends React.Component {
 
     loadData = async (match=undefined) => {
         await this.setState({loading: true});
-        await this.countCategories(match);
-        await this.loadCategories(match);
+        const numberOfCategories = await this.countCategories(match);
+
+        if (numberOfCategories < 100) {
+            await this.loadCategories(match, false);
+        }
+        else {
+            await this.setState({categories: [], match});
+        }
+
         await this.setState({loading: false});
     };
 
@@ -66,72 +73,46 @@ export default class extends React.Component {
         // console.log('numberOfCategories', numberOfCategories);
 
         await this.setState({ numberOfCategories });
+        return numberOfCategories;
     };
 
-    loadCategories = async (match=undefined, typedValue='') => {
-        const { numberOfCategories } = this.state,
+    loadCategories = async (match=undefined, search=false) => {
+        const { typedValue } = this.state,
             { filter } = this.props,
-            { dataSetId, field } = filter;
+            { dataSetId, field } = filter,
+            validTypedValue = !!typedValue && typedValue.length > 0,
+            applySearch = !search || (search && validTypedValue);
 
-        let stages = [
-            {
-                $group: {
-                    _id: null,
-                    categories: {
-                        $addToSet: `$${field}`
-                    }
+        let query = !!match && !!match.$match? match.$match: {},
+            categories = [];
+
+        if (search && validTypedValue) {
+            query = {
+                ...query,
+                [field]: {
+                    $regex: typedValue,
+                    $options: 'i',
                 }
-            }
-        ];
+            };
+        }
 
-        let matched = false;
-
-        // TODO: validate match object
-        if (numberOfCategories > 100) {
-            if (!!typedValue && typedValue.length > 0) {
-                matched = true;
-
-                stages.unshift({
-                    $match: {
-                        [field]: {
-                            $regex: typedValue,
-                            $options: 'i'
-                        },
-                        ...(!!match && !!match.$match? match.$match: {})
-                    }
-                });
-            }
-
-            stages.unshift({
-                $limit: 100
+        if (applySearch) {
+            const data = await rp({
+                method: 'POST',
+                uri: `${auth.getHost()}/dataset/${dataSetId}/distinct`,
+                body: {field, query},
+                headers: {
+                    'Authorization': `Bearer ${auth.getToken()}`
+                },
+                json: true
             });
+
+            if (!!data) {
+                categories = data.map(c => c === '' ? 'NA' : c);
+            }
         }
 
-        if (!matched && !!match) {
-            stages.unshift(match);
-        }
-
-        // console.log('#stages', stages);
-
-        const data = await rp({
-            method: 'POST',
-            uri: `${auth.getHost()}/dataset/${dataSetId}/aggregate`,
-            body: stages,
-            headers: {
-                'Authorization': `Bearer ${auth.getToken()}`
-            },
-            json: true
-        });
-
-        // console.log(data);
-
-        if (!!data && data.length === 1) {
-            const categories = data[0].categories.map(c => c === '' ? 'NA' : c);
-            await this.setState({categories, match});
-        }
-        else {
-            await this.setState({categories: [], match});
-        }
+        await this.setState({categories, match});
     };
 
     castValue = (value, dataType) => {
@@ -177,8 +158,8 @@ export default class extends React.Component {
 
     handleSearch = async (typedValue) => {
         // console.log('search', value);
-        // await this.setState({value});
-        await this.loadCategories(this.state.match, typedValue);
+        await this.setState({typedValue});
+        await this.loadCategories(this.state.match, true);
     };
 
     render() {

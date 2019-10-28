@@ -14,27 +14,32 @@ export default class extends React.Component {
     }
 
     loadData = async (match=undefined) => {
-        const { dataSet } = this.props,
-            { fields } = this.props.options,
-            { axis, color } = fields;
+        try {
 
-        await this.setState({ loading: true });
+            const { dataSet } = this.props,
+                { fields } = this.props.options,
+                { axis, color } = fields;
 
-        let documents = await getData('radar', dataSet.id, fields, match);
+            await this.setState({ loading: true });
 
-        if (!!color && color.value.name !== axis.value.name) {
-            documents.forEach(d => {
-                d[`_id_${axis.value.name}`] = d['_id'][axis.value.name];
-                d[`_id_${color.value.name}`] = d['_id'][color.value.name];
-            });
+            let documents = await getData('radar', dataSet.id, fields, match);
+
+            if (!!color && color.value.name !== axis.value.name) {
+                documents.forEach(d => {
+                    d[`_id_${axis.value.name}`] = d['_id'][axis.value.name];
+                    d[`_id_${color.value.name}`] = d['_id'][color.value.name];
+                });
+            }
+            else {
+                documents.forEach(d => d[`_id_${axis.value.name}`] = d['_id']);
+            }
+
+            console.log(documents);
+
+            this.setState({documents, loading: false});
+        }catch (e) {
+            console.log(e)
         }
-        else {
-            documents.forEach(d => d[`_id_${axis.value.name}`] = d['_id']);
-        }
-
-        console.log(documents);
-
-        this.setState({documents, loading: false});
     };
 
     render() {

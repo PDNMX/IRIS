@@ -42,7 +42,11 @@ export default class extends React.Component {
     loadData = async (match=undefined) => {
         const { dataSet } = this.props;
 
-        await this.setState({ loading: true });
+        try{
+            await this.setState({ loading: true });
+        }catch (e) {
+            console.log(e)
+        }
 
         let options = {
             method: 'POST',
@@ -81,7 +85,11 @@ export default class extends React.Component {
         }
         catch (e) {
             console.log(e);
-            await this.setState({documents: [], loading: false});
+            try{
+                await this.setState({documents: [], loading: false});
+            }catch (e) {
+                console.log(e)
+            }
         }
     };
 

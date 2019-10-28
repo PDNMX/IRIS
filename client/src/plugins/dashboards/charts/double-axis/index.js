@@ -138,7 +138,16 @@ export default class extends React.Component {
                 textStyle: {
                     fontSize: 11
                 }
-            };
+            },
+            barsTitle = {
+                text: !!bars.alias? bars.alias: bars.value.name,
+                offset: 70
+            },
+            linesTitle = {
+                text: !!lines.alias? lines.alias: lines.value.name,
+                offset: 70
+            },
+            padding;
 
         if (!!bars.formatter) {
             barsScale.formatter = helpers[bars.formatter];
@@ -184,6 +193,18 @@ export default class extends React.Component {
             linesScale.alias = lines.alias;
         }
 
+        if (!!config && !!config.padding && !!config.padding.value) {
+            padding = config.padding.value.split(',').map(e => parseInt(e));
+        }
+
+        if (!!config && !!config.barsTitleOffset && !!config.barsTitleOffset.value) {
+            barsTitle.offset = config.barsTitleOffset.value;
+        }
+
+        if (!!config && !!config.linesTitleOffset && !!config.linesTitleOffset.value) {
+            linesTitle.offset = config.linesTitleOffset.value;
+        }
+
         barsProps.label = barsLabel;
         linesProps.label = linesLabel;
 
@@ -194,12 +215,20 @@ export default class extends React.Component {
                     width={width}
                     height={height}
                     data={documents}
-                    padding={[20, sharedScale? 20: 80, 95, 80]}
+                    padding={!!padding? padding: [20, sharedScale? 20: 80, 95, 80]}
                     scale={[axisScale, barsScale, linesScale]}>
                     <Tooltip/>
                     <Axis dataKey={`_id_${axis.value.name}`} title={{text: !!axis.alias? axis.alias: axis.value.name}}/>
-                    <Axis dataKey={bars.value.name} show={true} position={'left'}/>
-                    <Axis dataKey={lines.value.name} show={!sharedScale}/>
+                    <Axis
+                        dataKey={bars.value.name}
+                        title={barsTitle}
+                        show={true}
+                        position={'left'}/>
+                    <Axis
+                        dataKey={lines.value.name}
+                        title={linesTitle}
+                        show={!sharedScale}/>
+
                     <Legend
                         custom
                         allowAllCanceled

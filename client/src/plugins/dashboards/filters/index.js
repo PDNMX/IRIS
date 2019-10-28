@@ -83,11 +83,14 @@ const Filter = connect(mapStateToProps, {addFilter, removeFilter})(
         };
 
         async componentDidUpdate() {
+            const {filterContext} = this.props;
+            
+            /*
             const {filterContext, filter, itemId} = this.props;
-
-            /*if (itemId === '72e3cc90-de37-11e9-8753-a32812d64875') {
+            if (itemId === '72e3cc90-de37-11e9-8753-a32812d64875') {
                 console.log('#filters', filter.filterType, this.state.filters, this.props.filters);
-            }*/
+            }
+            */
 
             if (filterContext === 'pane') {
                 if (!_.isEqual(this.state.filters, this.props.filters)) {

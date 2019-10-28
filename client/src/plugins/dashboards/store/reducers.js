@@ -10,7 +10,7 @@ import _ from 'lodash';
 export const filters = (state={}, action) => {
     const actionType = action.type;
 
-    console.log(actionType, action.payload);
+    // console.log(actionType, action.payload);
 
     if (actionType === ADD_FILTER) {
         const { payload } = action,
@@ -18,6 +18,7 @@ export const filters = (state={}, action) => {
         let paneFilters = paneId in state ? state[paneId] : {},
             dataSetFilters = dataSetId in paneFilters ? paneFilters[dataSetId] : {};
 
+/*
         console.log({
             ...state,
             [paneId]: {
@@ -28,6 +29,7 @@ export const filters = (state={}, action) => {
                 }
             }
         });
+*/
 
         return {
             ...state,

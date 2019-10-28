@@ -17,52 +17,55 @@ export default class extends React.Component {
         const { dataSet } = this.props,
             { fields } = this.props.options,
             { values, details } = fields;
+        try {
+            await this.setState({loading: true});
 
-        await this.setState({loading: true});
+            let documents = await getData(
+                'cartesian',
+                dataSet.id,
+                {
+                    axis: details,
+                    values: {
+                        type: 'array',
+                        value: [values.value]
+                    }
+                },
+                match
+            );
+            const detailsName = `_id_${details.value.name}`;
 
-        let documents = await getData(
-            'cartesian',
-            dataSet.id,
-            {
-                axis: details,
-                values: {
-                    type: 'array',
-                    value: [values.value]
+            // console.log(documents);
+            documents.forEach(d => d[detailsName] = d['_id']);
+
+            const dv = new DataSet.View().source(
+                {
+                    [detailsName]: 'root',
+                    children: documents
+                },
+                {
+                    type: 'hierarchy'
                 }
-            },
-            match
-        );
-        const detailsName = `_id_${details.value.name}`;
+            );
 
-        // console.log(documents);
-        documents.forEach(d => d[detailsName] = d['_id']);
+            dv.transform({
+                field: values.value.name,
+                type: 'hierarchy.treemap',
+                tile: 'treemapResquarify',
+                as: ['x', 'y'],
+            });
 
-        const dv = new DataSet.View().source(
-            {
-                [detailsName]: 'root',
-                children: documents
-            },
-            {
-                type: 'hierarchy'
-            }
-        );
+            documents = dv.getAllNodes().map(node => ({
+                ...node,
+                [detailsName]: node.data[detailsName],
+                [values.value.name]: node.data[values.value.name],
+            }));
 
-        dv.transform({
-            field: values.value.name,
-            type: 'hierarchy.treemap',
-            tile: 'treemapResquarify',
-            as: ['x', 'y'],
-        });
+            // console.log(documents);
 
-        documents = dv.getAllNodes().map(node => ({
-            ...node,
-            [detailsName]: node.data[detailsName],
-            [values.value.name]: node.data[values.value.name],
-        }));
-
-        // console.log(documents);
-
-        await this.setState({documents, loading: false});
+            await this.setState({documents, loading: false});
+        }catch (e) {
+            console.log(e)
+        }
     };
 
     render () {

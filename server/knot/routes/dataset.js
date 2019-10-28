@@ -98,9 +98,29 @@ router.post('/:dataSetId/aggregate', async (req, res) => {
             res.json(response);
         }
         catch (e) {
-            console.log(JSON.stringify(aggregation));
+            // console.log(JSON.stringify(aggregation));
             console.log(e);
             res.status(500).send(`Error aggregating ${dataSetId}!`);
+        }
+    }
+    else {
+        res.status(500).send('knot database not found!');
+    }
+});
+
+router.post('/:dataSetId/distinct', async (req, res) => {
+    const { dataSetId } = req.params,
+        {field, query} = req.body;
+
+    if (!!knot) {
+        try {
+            // console.log(field, query);
+            const response = await knot.collection(dataSetId).distinct(field, query);
+            res.json(response);
+        }
+        catch (e) {
+            console.log(e);
+            res.status(500).send(`Error performing distinct on ${dataSetId}!`);
         }
     }
     else {

@@ -23,47 +23,49 @@ export default class extends React.Component {
     loadData = async (match=undefined) => {
         const { dataSet } = this.props,
             { fields } = this.props.options;
+        try{
+            await this.setState({loading: true});
 
-        await this.setState({loading: true});
+            // todo: add gauges/pie getter
+            let documents = await getData(
+                'cartesian',
+                dataSet.id,
+                {
+                    axis: fields.details,
+                    values: {
+                        type: 'array',
+                        value: [fields.values.value]
+                    }
+                },
+                match
+            );
+            const detailsName = `_id_${fields.details.value.name}`;
 
-        // todo: add gauges/pie getter
-        let documents = await getData(
-            'cartesian',
-            dataSet.id,
-            {
-                axis: fields.details,
-                values: {
-                    type: 'array',
-                    value: [fields.values.value]
-                }
-            },
-            match
-        );
-        const detailsName = `_id_${fields.details.value.name}`;
+            // todo: post process id.
+            documents.forEach(d => d[detailsName] = d['_id']);
 
-        // todo: post process id.
-        documents.forEach(d => d[detailsName] = d['_id']);
+            const dv = new DataSet.View().source(documents);
 
-        const dv = new DataSet.View().source(documents);
+            dv.transform({
+                type: 'percent',
+                field: `${fields.values.value.name}`,
+                dimension: detailsName,
+                as: 'percent'
+            });
 
-        dv.transform({
-            type: 'percent',
-            field: `${fields.values.value.name}`,
-            dimension: detailsName,
-            as: 'percent'
-        });
-
-        documents = _.orderBy(dv.rows, 'percent', 'desc');
-        // console.log(documents);
-
-        await this.setState({documents, loading: false});
+            documents = _.orderBy(dv.rows, 'percent', 'desc');
+            // console.log(documents);
+            await this.setState({documents, loading: false});
+        }catch (e) {
+            console.log(e)
+        }
     };
 
     render() {
         const {documents, loading, defaultColor} = this.state,
             { fields } = this.props.options,
-            detailsName = `_id_${fields.details.value.name}`,
-            { width, height } = this.props;
+            detailsName = `_id_${fields.details.value.name}`;        
+            // { width, height } = this.props;
 
         return (
             <div style={{textAlign: 'center'}}>

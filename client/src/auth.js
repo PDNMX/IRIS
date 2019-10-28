@@ -25,7 +25,7 @@ export default {
             form: { email, password },
             json: true
         }).then((res) => {
-            console.log(res);
+            // console.log(res);
 
             if (res.authenticated) {
                 localStorage.token = res.token;

@@ -19,7 +19,7 @@ export default class extends React.Component {
                     <Col {...contentLayout}>
                         <Row type={'flex'} justify={'center'}>
                             <Col xs={12}>
-                                <img width={256} src={'https://gw.alipayobjects.com/zos/rmsportal/KpnpchXsobRgLElEozzI.svg'}/>
+                                <img alt='Page not found!' width={256} src={'https://gw.alipayobjects.com/zos/rmsportal/KpnpchXsobRgLElEozzI.svg'}/>
                             </Col>
                             <Col xs={12}>
                                 <div className={'content___3yHpa'}>

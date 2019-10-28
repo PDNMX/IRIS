@@ -7,7 +7,7 @@ import auth from './auth';
 import App from './app';
 
 auth.setHost(process.env.REACT_APP_HOST);
-console.log("CLIENT HOST:", auth.getHost());
+// console.log("CLIENT HOST:", auth.getHost());
 
 ReactDOM.render(<App />, document.getElementById('root'));
 registerServiceWorker();

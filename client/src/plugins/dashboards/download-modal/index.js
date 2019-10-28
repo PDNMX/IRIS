@@ -28,9 +28,9 @@ export default class extends React.Component {
     }
 
     download = async () => {
-        await this.setState({ downloading: true });
-
         try {
+            await this.setState({ downloading: true });
+
             const { item, ext, downloadType, filters } = this.state,
                 {dataSet, options} = item,
                 fileName = `${dataSet.id}_${moment().format('YYYY_MM_DD_hh_mm_ss')}.${ext}`;

@@ -50,8 +50,11 @@ export default class extends React.Component {
 
     loadData = async (match=undefined) => {
         const { dataSet } = this.props;
-
-        await this.setState({loading: true});
+        try{
+            await this.setState({loading: true});
+        }catch (e) {
+            console.log(e)
+        }
 
         let options = {
             method: 'POST',
@@ -97,29 +100,37 @@ export default class extends React.Component {
                 });
             }
             else {
-                await this.setState({
-                    documents: [],
-                    loading: false,
-                    cmin: 0,
-                    cmax: 1,
-                    rmin: 0,
-                    rmax: 1,
-                    viewState: {
-                        longitude: -122.41669,
-                        latitude: 37.7853,
-                        zoom: 6,
-                        pitch: 0,
-                        bearing: 0,
-                        height: 100,
-                        width: 100
-                    },
-                    hoveredObject: null
-                });
+                try{
+                    await this.setState({
+                        documents: [],
+                        loading: false,
+                        cmin: 0,
+                        cmax: 1,
+                        rmin: 0,
+                        rmax: 1,
+                        viewState: {
+                            longitude: -122.41669,
+                            latitude: 37.7853,
+                            zoom: 6,
+                            pitch: 0,
+                            bearing: 0,
+                            height: 100,
+                            width: 100
+                        },
+                        hoveredObject: null
+                    });
+                }catch (e) {
+                    console.log(e)
+                }
             }
         }
         catch (e) {
             console.log(e);
-            await this.setState({documents: [], loading: false});
+            try{
+                await this.setState({documents: [], loading: false});
+            }catch (e) {
+                console.log(e)
+            }
         }
     };
 

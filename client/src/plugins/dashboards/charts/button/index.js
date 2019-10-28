@@ -10,14 +10,20 @@ export default class extends React.Component {
         if (this.props.makeFormatter instanceof Function) {
             const { button } = this.props.data,
                 f = this.props.makeFormatter({...button, name: 'button'});
-
-            await this.setState({loading: true});
+            try{
+                await this.setState({loading: true});
+            }catch (e) {
+                console.log(e)
+            }
 
             if (!!f) {
                 f(undefined);
             }
-
-            await this.setState({loading: false});
+            try{
+                await this.setState({loading: false});
+            }catch (e) {
+                console.log(e)
+            }
         }
     };
 

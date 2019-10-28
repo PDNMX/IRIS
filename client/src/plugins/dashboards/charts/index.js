@@ -40,16 +40,19 @@ const Listener = connect(mapStateToProps)(
         }
 
         async componentDidMount() {
-            const { dashboardId, options } = this.props,
-                { config } = options;
-
+            const { dashboardId } = this.props;
+            
             if (!dashboardId) {
                 await this.itemRef.current.loadData(this.getMatch());
             }
             else if (!!dashboardId && _.isEmpty(this.state.filters)) {
                 await this.itemRef.current.loadData(this.getMatch());
             }
-
+            
+            /*
+            const { dashboardId, options } = this.props,
+                { config } = options;
+            
             if (!!config && !!config.interval && typeof config.interval.value === 'number') {
                 setInterval(
                     async () => {
@@ -60,6 +63,7 @@ const Listener = connect(mapStateToProps)(
                     config.interval.value
                 );
             }
+            */
         }
 
         getMatch = () => {
@@ -110,10 +114,11 @@ const Listener = connect(mapStateToProps)(
                     // console.log('#updated by filters changed!');
                     await this.setState({filters: this.props.filters});
                     await this.itemRef.current.loadData(this.getMatch());
-                } else if (_.isEmpty(this.props.filters)) {
+                }
+                else if (_.isEmpty(this.props.filters)) {
                     // await this.setState({filters: this.props.filters});
-                    // console.log('#updated by empty filters!');
-                    await this.itemRef.current.loadData();
+                    // console.log('#updated by empty filters!', this.props.filters, this.state.filters);
+                    await this.itemRef.current.loadData(this.getMatch());
                 }
             }
         }
@@ -161,6 +166,8 @@ const Listener = connect(mapStateToProps)(
                     return <HeatMap {...chartProps} ref={this.itemRef}/>;
                 case 'geoJsonPolygons':
                     return <GeoJsonPolygons {...chartProps} ref={this.itemRef}/>;
+                default:
+                    return <div></div>;
             }
         }
     }
@@ -170,13 +177,22 @@ const renderFilterValue = (value) => {
     return JSON.stringify(value);
 };
 
+const getTagColor = () => {
+    if (!!Global && !!Global.colors && Global.colors.length > 1) {
+        return Global.colors[1];
+    }
+    else {
+        return 'black';
+    }
+};
+
 export default (itemId, data, dimensions, changeStatic, onChange=undefined, makeFormatter=undefined, dashboardId=undefined) => {
-    const { dataSet, chartType, paneId, options } = data,
+    const { dataSet, chartType, paneId, options, calculations } = data,
         filters = (!!options && !!options.filters) && JSON.parse(options.filters),
         showFilters = !!filters && !_.isEmpty(filters);
 
     if (showFilters) {
-        dimensions = {...dimensions, height: dimensions.height - 60};
+        dimensions = {...dimensions, height: dimensions.height - 20};
     }
 
     switch (chartType) {
@@ -193,9 +209,10 @@ export default (itemId, data, dimensions, changeStatic, onChange=undefined, make
         default:
             return (
                 <div style={{textAlign: 'right'}}>
-                    <div style={dimensions}>
+                    <div >
                         <Listener
                             {...dimensions}
+                            calculations={calculations}
                             dashboardId={dashboardId}
                             itemId={itemId}
                             makeFormatter={makeFormatter}
@@ -212,7 +229,7 @@ export default (itemId, data, dimensions, changeStatic, onChange=undefined, make
                             (filter, name) => (
                                 <Tag
                                     key={name}
-                                    color={Global.defaultColor}>
+                                    color={getTagColor()}>
                                     <Icon type={'filter'}/> {name}: {renderFilterValue(filter)}
                                 </Tag>
                             )
