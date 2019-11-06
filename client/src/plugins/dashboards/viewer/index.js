@@ -360,9 +360,11 @@ export default connect(filters => ({filters}), {addFilter, removeFilter, initFil
                     size={'small'}
                     title={
                         !!item.title &&
-                        <div style={{textAlign: 'left', paddingLeft: 12}}>
-                            {item.title}
-                        </div>
+                        <Tooltip title={item.title}>
+                            <div style={{textAlign: 'left', paddingLeft: 12, display:'initial'}}>
+                                {item.title}
+                            </div>
+                        </Tooltip>
                     }
                     bodyStyle={{height: !!item.title? 'calc(100% - 40px)': '100%', width: '100%'}}
                     extra={!!item.title && this.getDropdown(item, key)}>
