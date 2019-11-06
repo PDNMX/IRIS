@@ -31,15 +31,15 @@ class AppLayout extends React.Component {
     componentWillMount() {
         auth.onChange = this.updateAuth;
         this.setState({width: window.innerWidth, height: window.innerHeight});
-        window.addEventListener('resize', this.updateWindowDimensions);
+        //window.addEventListener('resize', this.updateWindowDimensions);
     }
 
     componentWillUnmount() {
-        window.removeEventListener('resize', this.updateWindowDimensions);
+        //window.removeEventListener('resize', this.updateWindowDimensions);
     }
 
     updateWindowDimensions = () => {
-        this.setState({width: window.innerWidth, height: window.innerHeight});
+        //this.setState({width: window.innerWidth, height: window.innerHeight});
     };
 
     loadData = () => {
@@ -52,18 +52,16 @@ class AppLayout extends React.Component {
     render() {
         return (
             <LocaleProvider locale={es_ES}>
-                <Layout style={{minHeight: this.state.height}}>
-                    <Layout>
-                        <Content>
-                            <Switch>
-                                <Route path="/hubs/:hubId/dashboards/:dashboardId" component={DashboardEditor}
-                                       exact={true}/>
-                                <Route component={NoMatch}/>
-                            </ Switch>
-                        </ Content>
-                        <Footer style={{textAlign: 'center'}}>
-                        </ Footer>
-                    </ Layout>
+                <Layout>
+                    <Content>
+                        <Switch>
+                            <Route path="/hubs/:hubId/dashboards/:dashboardId" component={DashboardEditor}
+                                   exact={true}/>
+                            <Route component={NoMatch}/>
+                        </ Switch>
+                    </ Content>
+                    <Footer style={{textAlign: 'center'}}>
+                    </ Footer>
                 </ Layout>
             </ LocaleProvider>
         );

@@ -663,8 +663,16 @@ export default class extends React.Component {
             axisTitle.offset = config.axisTitleOffset.value;
         }
 
+        if (!!config && !!config.labelX && !!config.labelX.value) {
+            axisTitle.text = config.labelX.value;
+        }
+
         if (!!config && !!config.valuesTitleOffset && !!config.valuesTitleOffset.value) {
             valuesTitle.offset = config.valuesTitleOffset.value;
+        }
+
+        if (!!config && !!config.labelY && !!config.labelY.value) {
+            valuesTitle.text = config.labelY.value;
         }
 
         let scale = [axisScale, valuesScale];

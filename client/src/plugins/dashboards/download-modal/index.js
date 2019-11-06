@@ -134,6 +134,7 @@ export default class extends React.Component {
 
         return(
             <Modal
+                centered={true}
                 title={!!item && item.dataSet.name}
                 closable={!downloading}
                 maskClosable={!downloading}

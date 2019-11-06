@@ -5,6 +5,7 @@ IRIS ayuda a visualizar información de las declaraciones y contrataciones públ
 Es una herramienta para:
   - Analizar y visualizar tableros de los datos de declaraciones patrimoniales y contrataciones publicas bajo las especificaciones de la [Plataforma Digital Nacional].
 
+
 ## Requerimientos
 
 * [Node.js] 
@@ -28,15 +29,9 @@ SECRET_KEY=<Secret key app string>
 ```
 ## Ejecutar proyecto
 
-El presente manual utiliza ```yarn``` como administrador de modulos de node, pero en caso de requerirse se puede utilizar ```npm```.
+La instalación de dependencias de [Node.js] puede tomar algunos minutos
 
-La instalación de dependencias de [Node.js] puede tomar algunos minutos.
-
-* [Ejecución utilizando docker-compose](#run_with_docker)
-* [Ejecución sin docker-compose (node.js)](#run_without_docker)
-* [Ejecución en modo desarrollador (node.js)](#run_node)
-
-### <a name="run_with_docker"></a>Ejecución utilizando docker-compose
+### Docker
 
 Iniciar el contenedor [Docker] 
 ```sh
@@ -48,9 +43,9 @@ Re-compilar e iniciar el contenedor [Docker]
  $ docker-compose up --build
 ```
 
-_Para correr el contenedor en segundo plano utilizar el parametro ```-d```_
+Para correr el contenedor en segundo plano utilizar el parametro ```-d```
 
-### <a name="run_without_docker"></a>Ejecución sin docker-compose (node.js)
+### Sin contenedor
 1. Instalar y compilar dependecias
 
 ```sh
@@ -61,26 +56,6 @@ $ ./docker/install_build_app.sh
 ```sh
 $ yarn start-server-lib
 ```
-
-### <a name="run_node"></a>Ejecución en modo desarrollador (node.js)
-1. Instalar y compilar dependecias
-
-```sh
-$ ./docker/install_build_app.sh
-```
-
-2. Ejecutar servidor en modo desarrollo
-```sh
-$ yarn start-server-dev
-```
-El cliente se ejecutará en ```localhost:3006```
-
-3. Ejecutar cliente
-```sh
-$ cd client
-$ yarn start
-```
-El cliente se ejecutará en ```localhost:3006```
 
 ## Tableros
 

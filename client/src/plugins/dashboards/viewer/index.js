@@ -281,9 +281,11 @@ export default connect(filters => ({filters}), {addFilter, removeFilter, initFil
         getChartMenu = (item, key) => {
             return (
                 <Menu>
-                    <Menu.Item onClick={() => this.setState({showDownloadModal: true, selectedItem: {...item, itemId: key}})}>
-                        <Icon type={'download'}/> Datos
-                    </Menu.Item>
+                    {item.chartType == "text"? '':
+                        <Menu.Item onClick={() => this.setState({showDownloadModal: true, selectedItem: {...item, itemId: key}})}>
+                            <Icon type={'download'}/> Datos
+                        </Menu.Item>
+                    }
                     <Menu.Item onClick={() => this.downloadChart(item, key)}>
                         <Icon type={'camera'}/> Imagen
                     </Menu.Item>

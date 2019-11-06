@@ -365,12 +365,14 @@ export default class extends React.Component {
                 {
                     data.group instanceof Array?
                         <Table
+                            scroll={{ x: true }}
                             bordered
                             size={'small'}
                             rowKey={r => r['_id']}
                             columns={this.getFilteredColumns()}
                             dataSource={data.group}/>:
                         <Table
+                            scroll={{ x: true }}
                             size={'small'}
                             columns={this.getGroupColumns()}
                             expandedRowRender={this.expandedRowRender}
@@ -422,6 +424,7 @@ export default class extends React.Component {
                 {
                     fields.length > 0?
                         <Table
+                            scroll={{ x: true }}
                             loading={loading}
                             title={() => (
                                 <GroupBy
@@ -435,6 +438,7 @@ export default class extends React.Component {
                             expandedRowRender={this.expandedRowRender}
                             dataSource={_.map(data, (group, name) => ({key: name, group}))}/>:
                         <Table
+                            scroll={{ x: true }}
                             loading={loading}
                             /*title={() => (
                                 <GroupBy

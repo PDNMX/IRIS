@@ -17,6 +17,7 @@ export default class extends React.Component {
         search: false,
         value: undefined,
         numberOfCategories: 0,
+        limitOfCategories: 50,
         filters: {}
     };
 
@@ -46,7 +47,7 @@ export default class extends React.Component {
         await this.setState({loading: true});
         const numberOfCategories = await this.countCategories(match);
 
-        if (numberOfCategories < 100) {
+        if (numberOfCategories <= this.state.limitOfCategories) {
             await this.loadCategories(match, false);
         }
         else {
@@ -167,7 +168,7 @@ export default class extends React.Component {
             { dataSetId, field, alias } = this.props.filter,
             aliasLabel = !!alias? alias: field.capitalize();
 
-        const props = (numberOfCategories > 100)?
+        const props = (numberOfCategories  > this.state.limitOfCategories)?
             {
                 loading: loading,
                 mode,
