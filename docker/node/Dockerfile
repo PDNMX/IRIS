@@ -20,5 +20,4 @@ RUN mkdir $IRIS_HOME
 WORKDIR $IRIS_HOME
 COPY . $IRIS_HOME
 
-CMD ./docker/install_build_app.sh && \
-    yarn start-server-lib;
+CMD yarn start-server-lib;

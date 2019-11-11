@@ -38,6 +38,12 @@ La instalación de dependencias de [Node.js] puede tomar algunos minutos.
 
 ### <a name="run_with_docker"></a>Ejecución utilizando docker-compose
 
+Instalar y compilar dependecias
+
+```sh
+$ ./docker/install_build_app.sh
+```
+
 Iniciar el contenedor [Docker] 
 ```sh
 $ docker-compose up
@@ -84,13 +90,14 @@ El cliente se ejecutará en ```localhost:3006```
 
 ## Tableros
 
-* Tablero de declaraciones: 
-```http
-http://<IP_HOST>:<PORT>/hubs/1/dashboards/5d7913d057186e024a40e059
-```
 * Tablero de contrataciones: 
 ```http
 http://<IP_HOST>:<PORT>/hubs/1/dashboards/5d795b7857186e024a40e05a
+```
+
+* Tablero de declaraciones: 
+```http
+http://<IP_HOST>:<PORT>/hubs/1/dashboards/5d7913d057186e024a40e059
 ```
 
 [//]: # (These are reference links used in the body of this note and get stripped out when the markdown processor does its job. There is no need to format nicely because it shouldn't be seen.)
