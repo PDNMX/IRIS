@@ -121,6 +121,8 @@ const Filter = connect(mapStateToProps, {addFilter, removeFilter})(
                     return <SwitchFilter {...this.props} ref={this.itemRef}/>;
                 case 'datetime':
                     return <DatetimeFilter {...this.props} ref={this.itemRef}/>;
+                default:
+                    return <div>No filterType selected!</div>
             }
         }
     }

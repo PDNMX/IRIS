@@ -54,11 +54,11 @@ const getSumByAxisStage = ({axis, values, color}, config) => {
         const v = _.find(values.value, v => !!v.operator),
             opt = !!v? `$${v.operator}`: '$sum';
 
-        values.value.map(field => {
+        values.value.map(field =>
             res.$group[field.name] = {
                 [opt]: `$${field.name}`
-            };
-        });
+            }
+        );
     }
     else {
         const { operator } = values,

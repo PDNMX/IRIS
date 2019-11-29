@@ -188,7 +188,7 @@ export default class extends React.Component {
                                 <Text type={'secondary'}>{!!alias? alias: field.capitalize()} </Text>{loading && <Spin indicator={<Icon type='loading' spin/>} />}
                             </Tooltip>
                             <Tooltip title={'Reiniciar'}>
-                                <a onClick={this.handleClear}>{!loading && `[${min}, ${max}]`}</a>
+                                <a href="/" onClick={this.handleClear}>{!loading && `[${min}, ${max}]`}</a>
                             </Tooltip>
                         </div>
 
@@ -258,7 +258,7 @@ export default class extends React.Component {
                                 <Text type={'secondary'}>{!!alias? alias: field.capitalize()} </Text>{loading && <Spin indicator={<Icon type='loading' spin/>} />}
                             </Tooltip>
                             <Tooltip title={'Reiniciar'}>
-                                <a onClick={this.handleClear}>{!loading && `[${min}, ${max}]`}</a>
+                                <a href="/" onClick={this.handleClear}>{!loading && `[${min}, ${max}]`}</a>
                             </Tooltip>
                         </div>
                         {

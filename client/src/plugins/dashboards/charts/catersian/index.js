@@ -481,17 +481,17 @@ export default class extends React.Component {
         let analytic;
 
         if (!!config && !!config.analytic && !!config.analytic.value) {
-            let valuesAux, formatter;
+            let valuesAux; //, formatter;
 
             if (values.value instanceof Array) {
                 if (values.value.length === 1) {
                     valuesAux = { value: values.value[0] };
-                    formatter = values.value[0].formatter;
+                    //formatter = values.value[0].formatter;
                 }
             }
             else {
                 valuesAux = values;
-                formatter = values.formatter;
+                //formatter = values.formatter;
             }
 
             if (!!valuesAux) {

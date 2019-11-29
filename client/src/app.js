@@ -1,6 +1,6 @@
 import React from 'react';
 import {BrowserRouter, Route, Switch} from 'react-router-dom';
-import {Layout, LocaleProvider, message} from 'antd';
+import {Layout, ConfigProvider, message} from 'antd';
 import NoMatch from './common/page-not-found';
 import es_ES from 'antd/lib/locale-provider/es_ES';
 import auth from './auth';
@@ -51,7 +51,7 @@ class AppLayout extends React.Component {
 
     render() {
         return (
-            <LocaleProvider locale={es_ES}>
+            <ConfigProvider locale={es_ES}>
                 <Layout>
                     <Content>
                         <Switch>
@@ -63,7 +63,7 @@ class AppLayout extends React.Component {
                     <Footer style={{textAlign: 'center'}}>
                     </ Footer>
                 </ Layout>
-            </ LocaleProvider>
+            </ ConfigProvider>
         );
     }
 }

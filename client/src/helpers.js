@@ -116,7 +116,7 @@ export default {
         return fileList.length === 1 &&
             new Promise(resolve => {
                 const reader = new FileReader();
-                reader.addEventListener('load', () => resolve(reader.result));
+                reader.addEventListener('load', () => resolve(reader.result), {passive: true});
                 reader.readAsDataURL(fileList[0].originFileObj);
             });
     },

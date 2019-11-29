@@ -249,7 +249,7 @@ export default connect(filters => ({filters}), {addFilter, removeFilter, initFil
         handleMakeFormatter = (formatter, args={}) => {
             switch (formatter.name) {
                 case 'linkTo':
-                    return value => <a onClick={() => this.executeCommands(formatter.args.onClick, value)}>{value}</a>;
+                    return value => <a href="/" onClick={() => this.executeCommands(formatter.args.onClick, value)}>{value}</a>;
                 case 'eventHandler':
                     if (args.event === 'onClick') {
                         return value => this.executeCommands(formatter.args.onClick, value);
@@ -281,7 +281,7 @@ export default connect(filters => ({filters}), {addFilter, removeFilter, initFil
         getChartMenu = (item, key) => {
             return (
                 <Menu>
-                    {item.chartType == "text"? '':
+                    {item.chartType === "text"? '':
                         <Menu.Item onClick={() => this.setState({showDownloadModal: true, selectedItem: {...item, itemId: key}})}>
                             <Icon type={'download'}/> Datos
                         </Menu.Item>
