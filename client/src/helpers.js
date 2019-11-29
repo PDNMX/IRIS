@@ -1,3 +1,4 @@
+/*eslint no-extend-native: ["error", { "exceptions": ["String"] }]*/
 import moment from 'moment';
 import numeral from 'numeral';
 import React from 'react';

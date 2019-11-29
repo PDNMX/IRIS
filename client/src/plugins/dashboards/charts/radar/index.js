@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React from 'react';
 import { Axis, Chart, Tooltip, Line, Point, Coord, Legend} from 'viser-react/es/index';
 import getData from '../data';

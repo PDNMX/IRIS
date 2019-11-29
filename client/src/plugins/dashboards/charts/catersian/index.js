@@ -1,4 +1,4 @@
-/*jslint evil: true */
+/* eslint-disable */
 import React from 'react';
 import {
     Axis,
