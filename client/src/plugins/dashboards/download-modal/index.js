@@ -1,13 +1,13 @@
 import React from 'react';
-import {Modal, Button, Radio, Typography, Dropdown, Menu, message} from 'antd';
+import {Button, Dropdown, Menu, message, Modal, Radio, Typography} from 'antd';
 import moment from 'moment';
-import rp from 'request-promise';
 import auth from '../../../auth';
 import FileSaver from 'file-saver';
 import Papa from 'papaparse';
 import _ from 'lodash';
+import axios from "axios";
 
-const { Title } = Typography;
+const {Title} = Typography;
 
 export default class extends React.Component {
     state = {
@@ -29,19 +29,18 @@ export default class extends React.Component {
 
     download = async () => {
         try {
-            await this.setState({ downloading: true });
+            await this.setState({downloading: true});
 
-            const { item, ext, downloadType, filters } = this.state,
+            const {item, ext, downloadType, filters} = this.state,
                 {dataSet, options} = item,
                 fileName = `${dataSet.id}_${moment().format('YYYY_MM_DD_hh_mm_ss')}.${ext}`;
 
             let opt = {
-                method: 'POST',
-                uri: `${auth.getHost()}/dataset/${dataSet.id}`,
+                method: 'post',
+                url: `${auth.getHost()}/dataset/${dataSet.id}`,
                 headers: {
                     'Authorization': `Bearer ${auth.getToken()}`
-                },
-                json: true
+                }
             };
 
             let where = {};
@@ -67,31 +66,31 @@ export default class extends React.Component {
                 };
             }
 
-            const data = await rp(opt);
+            axios(opt)
+                .then(function (response) {
+                    FileSaver.saveAs(
+                        ext === 'json' ?
+                            new Blob(
+                                [JSON.stringify(response.data, null, 2)],
+                                {type: 'application/json'}
+                            ) :
+                            new Blob(
+                                [Papa.unparse(response.data)],
+                                {type: 'text/csv;charset=utf-8;'}
+                            ),
+                        fileName
+                    );
+                    this.setState({downloading: false}, this.handleClose);
+                }
+                .bind(this))
+                .catch(function (err) {
+                    console.log(err)
+                });
 
-            if (!!data && data.length) {
-                FileSaver.saveAs(
-                    ext === 'json'?
-                        new Blob(
-                            [JSON.stringify(data, null, 2)],
-                            {type: 'application/json'}
-                        ) :
-                        new Blob(
-                            [Papa.unparse(data)],
-                            {type: 'text/csv;charset=utf-8;'}
-                        ),
-                    fileName
-                );
-            } else {
-                message.error('No existen datos.');
-            }
-
-        }
-        catch (e) {
+        } catch (e) {
             message.error('Error al descargar los datos.');
         }
 
-        await this.setState({ downloading: false }, this.handleClose);
     };
 
     handleOk = async () => {
@@ -110,7 +109,7 @@ export default class extends React.Component {
                 downloadType: 'all'
             },
             () => {
-                if(this.props.onClose instanceof Function) {
+                if (this.props.onClose instanceof Function) {
                     this.props.onClose();
                 }
             }
@@ -125,19 +124,18 @@ export default class extends React.Component {
     );
 
     render() {
-        const { downloading, item, downloadType, ext } = this.state,
+        const {downloading, item, downloadType, ext} = this.state,
             radioStyle = {
                 display: 'block',
                 height: '30px',
                 lineHeight: '30px',
             };
 
-        return(
+        return (
             <Modal
                 centered={true}
                 title={!!item && item.dataSet.name}
                 closable={!downloading}
-                maskClosable={!downloading}
                 visible={this.state.visible}
                 onOk={this.handleOk}
                 onCancel={this.handleCancel}
@@ -156,7 +154,7 @@ export default class extends React.Component {
                         key={'submit'}
                         overlay={this.getMenu()}
                         icon={`.${ext}`}>
-                        {downloading? 'Descargando': 'Descargar'}
+                        {downloading ? 'Descargando' : 'Descargar'}
                     </Dropdown.Button>
                 ]}>
                 <Title level={4}>Descargar:</Title>
@@ -164,7 +162,8 @@ export default class extends React.Component {
                     value={downloadType}
                     onChange={e => this.setState({downloadType: e.target.value})}>
                     <Radio style={radioStyle} value={'all'}>Todos los datos.</Radio>
-                    <Radio style={radioStyle} value={'filtered-pane'}>Solo los datos seleccionados por los filtros de la página.</Radio>
+                    <Radio style={radioStyle} value={'filtered-pane'}>Solo los datos seleccionados por los filtros de la
+                        página.</Radio>
                     {/*<Radio style={radioStyle} value={'filtered-chart'}>Solo los datos mostrados en el gráfico.</Radio>*/}
                 </Radio.Group>
             </Modal>

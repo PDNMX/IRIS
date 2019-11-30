@@ -1,4 +1,4 @@
-/* eslint-disable */
+/*jslint evil: true */
 import React from 'react';
 import {
     Axis,
@@ -404,7 +404,7 @@ export default class extends React.Component {
                 }
             };
 
-        labelOptions.formatter = !!values.formatter? helpers[values.formatter]: v => v;
+        //labelOptions.formatter = !!values.formatter? helpers[values.formatter]: v => v;
 
         if (!!config && !!config.density && !!config.density.value) {
             labelOptions.density = config.density.value;
@@ -481,17 +481,17 @@ export default class extends React.Component {
         let analytic;
 
         if (!!config && !!config.analytic && !!config.analytic.value) {
-            let valuesAux; //, formatter;
+            let valuesAux, formatter;
 
             if (values.value instanceof Array) {
                 if (values.value.length === 1) {
                     valuesAux = { value: values.value[0] };
-                    //formatter = values.value[0].formatter;
+                    formatter = values.value[0].formatter;
                 }
             }
             else {
                 valuesAux = values;
-                //formatter = values.formatter;
+                formatter = values.formatter;
             }
 
             if (!!valuesAux) {
@@ -555,7 +555,7 @@ export default class extends React.Component {
 
             formula = !!formulaData && (
                 <View data={formulaData} scale={scale}>
-                    <Axis dataKey={'__formula'} position={'right'}/>
+                    <Axis dataKey={'__formula'} position={'right'} title={{text:formulaName}}/>
                     <Line
                         position={`_id_${axis.value.name}*__formula`}
                         style={{stroke: '#969696', lineDash: [3, 3]}}
@@ -607,6 +607,25 @@ export default class extends React.Component {
         return cumulative;
     };
 
+    getXScaleTick = (axis) => {
+        var axisScale = {}
+        if (!!axis.operator && axis.operator === 'year' ) {
+            axisScale = {
+                dataKey: `_id_${axis.value.name}`,
+                type: this.getXScale(axis),
+                tickInterval: 1
+            }
+        }else {
+            axisScale = {
+                dataKey: `_id_${axis.value.name}`,
+                type: this.getXScale(axis)
+            }
+        }
+
+        return axisScale
+
+    }
+
     _render = () => {
         const {loading} = this.state;
 
@@ -623,10 +642,8 @@ export default class extends React.Component {
                 !!config.coordDirection.value
             )? config.coordDirection.value: undefined;
 
-        let axisScale = {
-                dataKey: `_id_${axis.value.name}`,
-                type: this.getXScale(axis)
-            },
+
+        let axisScale = this.getXScaleTick(axis),
             valuesScale = {
                 dataKey: values.value.name,
                 type: this.getYScale(values),

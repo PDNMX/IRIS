@@ -63,7 +63,7 @@ export default {
         return numeral(value).format('$0,0');
     },
     currencyMillions(value) {
-        return numeral(value).format('($0 a)');
+        return numeral(value/1000000).format('(0,0)');
     },
     mailTo(value) {
         return (<a href={`mailto:${value}`} style={ { textDecoration: 'none', color: '#757575' } }>{value}</a>);

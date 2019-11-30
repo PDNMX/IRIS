@@ -318,7 +318,7 @@ export default connect(filters => ({filters}), {addFilter, removeFilter, initFil
 
             return !listen && (
                 <span>
-                    <Tooltip title={'El gráfico no escucha los filtros'} placement={'bottom'}>
+                    <Tooltip title={'Este gráfico es estático, no depende de los filtros'} placement={'bottom'}>
                         <Icon type={'filter'} style={{color: '#8C8C8C'}}/>
                     </Tooltip>
                     <Divider type={'vertical'}/>

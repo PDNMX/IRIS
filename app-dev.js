@@ -33,8 +33,8 @@ const reviver = (key, value) => {
 
 
 app.use(logger('dev'));
-app.use(bodyParser.json({limit: '100mb', reviver}));
-app.use(bodyParser.urlencoded({ limit: "100mb", extended: true, parameterLimit:100000 }));
+app.use(bodyParser.json({limit: '1000mb', reviver}));
+app.use(bodyParser.urlencoded({ limit: "1000mb", extended: true, parameterLimit:100000 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
