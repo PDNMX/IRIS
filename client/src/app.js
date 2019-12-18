@@ -54,12 +54,15 @@ class AppLayout extends React.Component {
             <ConfigProvider locale={es_ES}>
                 <Layout>
                     <Content>
+                    <BrowserRouter basename={process.env.PUBLIC_URL}>
                         <Switch>
                             <Route path="/hubs/:hubId/dashboards/:dashboardId" component={DashboardEditor}
                                    exact={true}/>
                             <Route component={NoMatch}/>
                         </ Switch>
+                    </BrowserRouter>
                     </ Content>
+                    
                     <Footer style={{textAlign: 'center'}}>
                     </ Footer>
                 </ Layout>
@@ -69,7 +72,7 @@ class AppLayout extends React.Component {
 }
 
 const PrivateRoute = ({component: Component, ...rest}) => (
-    <Route
+    <Route 
         {...rest}
         render={props =>
             auth.loggedIn() ? (
@@ -86,7 +89,7 @@ export default class Router extends React.Component {
 
     render() {
         return (
-<BrowserRouter >
+<BrowserRouter basename={process.env.PUBLIC_URL}>
   <Switch >
     <PrivateRoute component={AppLayout} />
   </ Switch>

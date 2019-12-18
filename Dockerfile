@@ -7,6 +7,7 @@ WORKDIR /server
 
 RUN yarn add global yarn \
 && yarn install \
+&& yarn build \
 && yarn cache clean
 
 EXPOSE 3000
