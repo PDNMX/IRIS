@@ -1,0 +1,12 @@
+# Docker's ignored files
+# node_modules
+# client/node_modules
+.git
+.gitignore
+.idea
+docker
+client
+build
+docs
+.env-example
+.gitignore
