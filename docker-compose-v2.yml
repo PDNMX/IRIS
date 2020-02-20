@@ -34,4 +34,13 @@ services:
       - backend
     depends_on:
       - backend
+  iframe:
+    restart: always
+    build:
+      context: ./iframe
+      dockerfile: Dockerfile
+    stdin_open: true
+    tty: true
+    ports:
+      - 8080:8080
 
