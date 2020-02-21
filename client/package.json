@@ -1,6 +1,7 @@
 {
   "name": "knot",
   "version": "0.1.0",
+  "homepage": "/tec",
   "private": true,
   "dependencies": {
     "@ant-design/dark-theme": "^0.2.2",

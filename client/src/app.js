@@ -56,8 +56,8 @@ class AppLayout extends React.Component {
                     <Content>
                     <BrowserRouter basename={process.env.PUBLIC_URL}>
                         <Switch>
-                            <Route path="/hubs/:hubId/dashboards/:dashboardId" component={DashboardEditor}
-                                   exact={true}/>
+                            <Route  path="/" component={DashboardEditor}
+                            />
                             <Route component={NoMatch}/>
                         </ Switch>
                     </BrowserRouter>

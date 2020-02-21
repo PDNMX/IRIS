@@ -70,12 +70,12 @@ export default connect(filters => ({filters}), {addFilter, removeFilter, initFil
                     if (!!theme) {
                         Global.registerTheme('theme', theme);
                         Global.setTheme('theme');
-                        window.less
-                            .modifyVars({'@primary-color': theme.defaultColor})
-                            .then(() => {})
-                            .catch(error => {
-                                message.error('Failed to update theme');
-                            });
+                        //window.less
+                        //    .modifyVars({'@primary-color': theme.defaultColor})
+                        //    .then(() => {})
+                        //    .catch(error => {
+                        //        message.error('Failed to update theme');
+                        //    });
                     }
 
                     panes.forEach(pane =>

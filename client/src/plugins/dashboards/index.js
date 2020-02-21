@@ -19,8 +19,7 @@ export default DragDropContext(HTML5Backend)(
                         <Content style={{height: '100%'}}>
                             <Switch>
                                 <Route exact path={'/hubs/1/dashboards/:dashboardId'} component={DashboardViewer}/>
-                                <Route exact path={'/hubs/1/dashboards/:dashboardId/view'} component={DashboardViewer}/>
-                                <Route exact path={'/view/:dashboardId'} component={DashboardViewer} />
+                                <Route exact path={'/view/:dashboardId'} component={DashboardViewer}/>
                                 <Route exact path={'/hubs/1/dashboardeditor/view/:dashboardId'} component={DashboardViewer} />
                             </Switch>
                         </Content>
