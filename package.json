@@ -35,7 +35,7 @@
     "password-hash": "^1.2.2",
     "pg": "^6.4.2",
     "pluralize": "^7.0.0",
-    "pug": "2.0.0-beta11",
+    "pug": "3.0.1",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
     "react-qrcode-logo": "^2.0.0",
