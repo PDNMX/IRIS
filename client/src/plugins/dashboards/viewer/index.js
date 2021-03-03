@@ -12,7 +12,7 @@ import {connect} from 'react-redux';
 import { SizeMe } from 'react-sizeme'
 import {addFilter, removeFilter, initFilters, removePaneFilters, setPaneFilters} from '../store/actions';
 import DownloadModal from '../download-modal';
-import htmlToImage from 'html-to-image';
+import * as htmlToImage from 'html-to-image';
 import FileSaver from 'file-saver';
 import moment from 'moment';
 import {Global} from 'viser-react';
