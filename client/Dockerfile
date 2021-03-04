@@ -1,4 +1,4 @@
-FROM node:lts-alpine
+FROM node:12-alpine
 
 MAINTAINER Sergio Rodríguez <sergio.rdzsg@gmail.com>
 
