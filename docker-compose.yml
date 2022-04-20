@@ -1,22 +1,37 @@
-# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-# Run:
-#   - Create mongodb container
-#   - Create iris-app container and linked with mongodb container
-# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-# Scripts:
-#   - Run and first time build
-#     docker-compose up
-#   - Rebuild containers then run
-#     docker-compose up -d --build
-# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-version: "2.0"
+version: "3"
+
+volumes:
+  mongo_data:
+
 services:
-  iris_app:
-    container_name: "iris_app"
-    build: ./docker/node/
-    ports:
-      - 3000:3000
+  mongodb:
+    image: mongo:4-bionic
+    restart: always
     volumes:
-      - ./:/iris-production
-    env_file:
-      - .env
+      - 'mongo_data:/data/db'
+  backend:
+    build:
+      context: backend_IRIS
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      APP_ENV: "prod"
+      APP_DEBUG: "False"
+      APP_PORT: 5000
+      #MONGODB_DATABASE: iris
+      #MONGODB_HOSTNAME: mongodb
+    ports:
+      - "5000:5000"
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
+
+  frontend:
+    build:
+      context: frontend_IRIS
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8081:3000"
+    stdin_open: true
