@@ -41,7 +41,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'client', 'build')));
 
-app.use(expressJWT({ secret: applicationSecretKey() }).unless(
+app.use(expressJWT({ secret: applicationSecretKey(), algorithms: ['RS256'] }).unless(
     {
         path: [
             /\/favicon.ico/,

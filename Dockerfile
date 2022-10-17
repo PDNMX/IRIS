@@ -1,4 +1,4 @@
-FROM node:lts-alpine
+FROM node:14-alpine
 
 MAINTAINER Sergio Rodríguez <sergio.rdzsg@gmail.com>
 
@@ -6,7 +6,7 @@ ADD . /server
 WORKDIR /server
 
 RUN yarn add global yarn \
-&& yarn install \
+&& yarn install --force \
 && yarn build \
 && yarn cache clean
 

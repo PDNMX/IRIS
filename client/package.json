@@ -46,7 +46,7 @@
     "viser-react": "^2.4.3"
   },
   "scripts": {
-    "start": "cross-env PORT=3006 rescripts start",
+    "start": "cross-env PORT=3000 rescripts start",
     "build": "rescripts --max-old-space-size=8192 build",
     "test": "rescripts test",
     "login": "firebase login",

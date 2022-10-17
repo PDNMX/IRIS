@@ -1,7 +1,8 @@
 version: '3.1'
 
 volumes:
-  mongo_data:
+  mongo_data: {}
+
 services:
   mongo:
     image: mongo:4-bionic
@@ -29,7 +30,7 @@ services:
     stdin_open: true
     tty: true
     ports:
-      - 5012:5000
+      - 5012:3000
     links:
       - backend
     depends_on:
