@@ -19,13 +19,13 @@ const TextoBold = styled(Typography)({
   fontFamily: "Roboto",
 });
 
-function Bandera1() {
+function Bandera5() {
   const [dataBarraSecundaria, setdataBarraSecundaria] = useState([]);
   const [dataPie, setDataPie] = useState([]);
   const [dataBarraPrincipal, setDataBarraPrincipal] = useState([]);
   const [rangoSlider, setRangoSlider] = useState([0, 1000]);
-  const [fechaInicio, setFechaInicio] = useState("2016-12-08");
-  const [fechaFin, setFechaFin] = useState("2018-11-12");
+  const [fechaInicio, setFechaInicio] = useState("2015-12-29");
+  const [fechaFin, setFechaFin] = useState("2018-10-16");
 
   useEffect(() => {
     getDataBarraSecundaria();
@@ -104,7 +104,7 @@ function Bandera1() {
     };
 
     fetch(
-      "https://iris.plataformadigitalnacional.org/api/dataset/analytic_contracts_flag_1/aggregate",
+      "https://iris.plataformadigitalnacional.org/api/dataset/analytic_contracts_flag_5/aggregate",
       requestOptions
     )
       .then((response) => {
@@ -147,7 +147,7 @@ function Bandera1() {
     };
 
     fetch(
-      "https://iris.plataformadigitalnacional.org/api/dataset/analytic_contracts_flag_1/aggregate",
+      "https://iris.plataformadigitalnacional.org/api/dataset/analytic_contracts_flag_5/aggregate",
       requestOptions
     )
       .then((response) => {
@@ -168,7 +168,11 @@ function Bandera1() {
       .catch((error) => console.log("error", error));
   }
 
-  function getDataBarraPrincipal(value = [0, 100]) {
+  function getDataBarraPrincipal(
+    value = [1, 30],
+    fechaInicio = "2016-12-08",
+    fechaFin = "2018-11-12"
+  ) {
     var myHeaders = new Headers();
 
     myHeaders.append("content-type", "application/json");
@@ -176,16 +180,20 @@ function Bandera1() {
     var raw = JSON.stringify([
       {
         $match: {
-          duration: {
-            $gte: value[0], //limite inferior
-            $lte: value[1], //limite superior
+          amendments: {
+            $gte: value[0],
+            $lte: value[1],
+          },
+          _datetime: {
+            $gte: fechaInicio,
+            $lte: fechaFin,
           },
           status: "Datos completos",
         },
       },
       {
         $group: {
-          _id: "$duration",
+          _id: "$amendments",
           contractId: {
             $sum: 1,
           },
@@ -201,7 +209,7 @@ function Bandera1() {
     };
 
     fetch(
-      "https://iris.plataformadigitalnacional.org/api/dataset/analytic_contracts_flag_1/aggregate",
+      "https://iris.plataformadigitalnacional.org/api/dataset/analytic_contracts_flag_5/aggregate",
       requestOptions
     )
       .then((response) => {
@@ -231,38 +239,42 @@ function Bandera1() {
       <Grid item xs={12} sm={12} md={12}>
         <Box sx={{ padding: 2 }}>
           <Box sx={{ p: 2, border: "5px dashed silver" }}>
-            <TextoBold variant="h5">Bandera 1</TextoBold>
+            <TextoBold variant="h5">Bandera 5</TextoBold>
 
             <Typography textAlign={"justify"}>
-              Corto plazo para que los licitadores presenten expresiones de
-              interés o preparen ofertas para procesos competitivos.
+              Alto porcentaje de contratos que tienen enmiendas
+              (modificaciones).
             </Typography>
 
             <TextoBold variant="h6">Fase</TextoBold>
 
-            <Typography textAlign={"justify"}>Licitación.</Typography>
+            <Typography textAlign={"justify"}>Contrato.</Typography>
 
             <TextoBold variant="h6">¿Por qué es una bandera roja?</TextoBold>
 
             <Typography textAlign={"justify"}>
-              Un periodo de tiempo insuficiente no permitirá a todos los
-              licitantes interesados preparar y presentar ofertas de calidad.
-              Los licitantes que hayan sido “informados” antes de la apertura
-              pública pueden tener ventaja injusta teniendo más tiempo para
-              preparar las ofertas.
+              Un mayor número de contratos sin enmiendas puede indicar mayor
+              integridad. La inestabilidad de un contrato puede ser un indicador
+              de corrupción en ciertos casos; la integridad generalmente se
+              maximiza cuando los términos finales de la licitación,
+              adjudicación, contrato inicial y contrato final se corresponden
+              estrechamente. El riesgo de las enmiendas es que los proveedores
+              pueden ser seleccionados por haber ofrecido el precio más bajo y
+              luego aumentan sus precios. Ésta es una forma legalmente permitida
+              que facilita irregularidades en el proceso de contratación, como
+              tal es difícil de monitorear y disminuye la integridad del proceso
+              de compra pública.
             </Typography>
 
             <TextoBold variant="h6">Información que necesitamos</TextoBold>
             <ul>
-              <li>ID del concurso</li>
-              <li>Método de contratación</li>
-              <li>Fecha de inicio del concurso</li>
-              <li>Fecha final del concurso</li>
+              <li>ID del contrato</li>
+              <li>Enmiendas al contrato</li>
             </ul>
 
             <TextoBold variant="h6">¿Cómo se calcula?</TextoBold>
             <Typography textAlign={"justify"}>
-              Fecha final del concurso - Fecha de inicio del concurso.
+              Contratos con enmiendas/ todos los contratos
             </Typography>
           </Box>
         </Box>
@@ -305,6 +317,8 @@ function Bandera1() {
               peticion={getDataBarraPrincipal}
               min={rangoSlider[0]}
               max={rangoSlider[1]}
+              fechaInicio={fechaInicio}
+              fechaFin={fechaFin}
             />
           </Box>
         </Box>
@@ -313,14 +327,14 @@ function Bandera1() {
         <Box sx={{ padding: 2 }}>
           <Box sx={{ p: 2, border: "5px dashed silver" }}>
             <Typography paragraph textAlign={"justify"}>
-              Procesos de contratación con bandera roja por el tiempo para
-              presentar ofertas
+              Procesos de contratación con bandera roja por el número de
+              enmiendas
             </Typography>
             <Barra
               data={dataBarraPrincipal}
               keys={["contractId"]}
               indexBy={"_id"}
-              bottomLegend={"Tiempo para presentar ofertas (días)"}
+              bottomLegend={"Enmiendas"}
               leftLegend={"Número de contratos"}
               leftLegendOffset={-65}
               bottomTickRotation={-90}
@@ -338,7 +352,7 @@ function Bandera1() {
         <Box sx={{ padding: 2 }}>
           <Box sx={{ p: 2, border: "5px dashed silver" }}>
             <Typography paragraph textAlign={"justify"}>
-              Integridad de los datos para el cálculo de la bandera
+              Calidad de los datos para cálculo de la bandera
             </Typography>
             <Pie data={dataPie} id={"_id"} value={"contractId"} />
           </Box>
@@ -350,8 +364,7 @@ function Bandera1() {
         <Box sx={{ padding: 2 }}>
           <Box sx={{ p: 2, border: "5px dashed silver" }}>
             <Typography paragraph textAlign={"justify"}>
-              Resumen de la integridad de los datos para el cálculo de la
-              bandera
+              Resumen de la calidad de los datos para cálculo de la bandera
             </Typography>
             <Barra
               data={dataBarraSecundaria}
@@ -395,4 +408,4 @@ function Bandera1() {
   );
 }
 
-export default Bandera1;
+export default Bandera5;

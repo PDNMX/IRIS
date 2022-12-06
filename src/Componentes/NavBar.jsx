@@ -28,7 +28,7 @@ const ThemeAppBar = styled(AppBar)({
   backgroundColor: "purple",
 });
 
-const pages = ["Home", "Bandera 1", "Bandera 2", "Bandera 3", "Bandera 4"];
+const pages = ["Home", "Bandera 1", "Bandera 2", "Bandera 3", "Bandera 4", "Bandera 5"];
 
 export default function NavBar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);

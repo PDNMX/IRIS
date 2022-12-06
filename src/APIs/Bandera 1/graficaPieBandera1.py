@@ -33,4 +33,7 @@ headers = {
 
 response = requests.request("POST", url, headers=headers, data=payload)
 
+with open("../../Datos/DatosGraficaPieBandera1.js","w",encoding="utf-8") as file:
+  file.write("export const data="+response.text)
+
 print(response.text)

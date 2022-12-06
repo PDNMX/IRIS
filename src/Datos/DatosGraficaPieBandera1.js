@@ -1,0 +1,1 @@
+export const data=[{"_id":"Sin fecha de inicio del concurso","contractId":7976},{"_id":"Sin fecha de inicio ni final del concurso","contractId":250545},{"_id":"Información completa","contractId":41242},{"_id":"La duración es negativa","contractId":502}]

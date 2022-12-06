@@ -1,17 +1,19 @@
 import { ResponsivePie } from "@nivo/pie";
 
-const Pie = (props) => {
+const Pie = (parametros) => {
   return (
     <div style={{ height: "400px" }}>
       <ResponsivePie
-        data={props.data}
-        margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
+        data={parametros.data}
+        id={parametros.id}
+        value={parametros.value}
+        margin={{ top: 40, right: -40, bottom: 60, left: 80 }}
         innerRadius={0.5}
-        padAngle={0.7}
-        cornerRadius={3}
+        padAngle={6}
+        cornerRadius={10}
         activeOuterRadiusOffset={8}
-        colors={{ scheme: "purple_red" }}
-        borderWidth={1}
+        colors={{ scheme: "pink_yellowGreen" }}
+        borderWidth={5}
         borderColor={{
           from: "color",
           modifiers: [["darker", 0.2]],
@@ -19,11 +21,13 @@ const Pie = (props) => {
         arcLinkLabelsSkipAngle={10}
         arcLinkLabelsTextColor="#333333"
         arcLinkLabelsThickness={2}
+        arcLinkLabelsStraightLength={0}
+        enableArcLabels={false}
         arcLinkLabelsColor={{ from: "color" }}
         arcLabelsSkipAngle={10}
         arcLabelsTextColor={{
           from: "color",
-          modifiers: [["darker", 2]],
+          modifiers: [["brighter", 2]],
         }}
         defs={[
           {
@@ -45,66 +49,16 @@ const Pie = (props) => {
             spacing: 10,
           },
         ]}
-        fill={[
-          {
-            match: {
-              id: "ruby",
-            },
-            id: "dots",
-          },
-          {
-            match: {
-              id: "c",
-            },
-            id: "dots",
-          },
-          {
-            match: {
-              id: "go",
-            },
-            id: "dots",
-          },
-          {
-            match: {
-              id: "python",
-            },
-            id: "dots",
-          },
-          {
-            match: {
-              id: "scala",
-            },
-            id: "lines",
-          },
-          {
-            match: {
-              id: "lisp",
-            },
-            id: "lines",
-          },
-          {
-            match: {
-              id: "elixir",
-            },
-            id: "lines",
-          },
-          {
-            match: {
-              id: "javascript",
-            },
-            id: "lines",
-          },
-        ]}
         legends={[
           {
             anchor: "bottom",
-            direction: "row",
+            direction: "column",
             justify: false,
-            translateX: 0,
-            translateY: 56,
-            itemsSpacing: 0,
-            itemWidth: 100,
-            itemHeight: 18,
+            translateX: -230,
+            translateY: -240,
+            itemsSpacing: 5,
+            itemWidth: 250,
+            itemHeight: 20,
             itemTextColor: "#999",
             itemDirection: "left-to-right",
             itemOpacity: 1,

@@ -9,6 +9,7 @@ import Bandera1 from "../Paginas/Bandera1";
 import Bandera2 from "../Paginas/Bandera2";
 import Bandera3 from "../Paginas/Bandera3";
 import Bandera4 from "../Paginas/Bandera4";
+import Bandera5 from "../Paginas/Bandera5";
 import Home from "../Paginas/Home";
 
 export default function Main() {
@@ -23,6 +24,7 @@ export default function Main() {
           <Route exact path="/Bandera2" element={<Bandera2 />} />
           <Route exact path="/Bandera3" element={<Bandera3 />} />
           <Route exact path="/Bandera4" element={<Bandera4 />} />
+          <Route exact path="/Bandera5" element={<Bandera5 />} />
         </Routes>
       </Router>
       <PieDePagina/>
