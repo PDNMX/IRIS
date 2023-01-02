@@ -254,7 +254,22 @@ function Bandera3() {
       .then((response) => {
         return response.json();
       })
-      .then((result) =>
+      .then((result) => {
+        // Obtenemos promedio
+        let sum = 0;
+        let i;
+
+        for (i = 0; i < result.length; i++) {
+          sum += result[i].contractId;
+        }
+
+        for (i = 0; i < result.length; i++) {
+          result[i]["porcentaje"] = Math.round(
+            (result[i].contractId * 100) / sum
+          );
+        }
+
+        // Ordenamos y asignamos valor
         setDataPie(
           result.sort((o1, o2) => {
             if (o1.contractId < o2.contractId) {
@@ -264,8 +279,8 @@ function Bandera3() {
             }
             return 0;
           })
-        )
-      )
+        );
+      })
       .catch((error) => console.log("error", error));
   }
 
@@ -472,6 +487,7 @@ function Bandera3() {
               leftLegend={"Número de contratos"}
               leftLegendOffset={-55}
               scheme={"set2"}
+              marginLeft={60}
             />
             <Typography paragraph textAlign={"justify"}>
               La gráfica muestra el número de procesos anuales de contratación,
@@ -487,9 +503,14 @@ function Bandera3() {
         <Box sx={{ padding: 2 }}>
           <Box sx={{ p: 2, border: "5px dashed silver" }}>
             <Typography paragraph textAlign={"justify"}>
-              Distribución de contratos por método de adjudicación
+              Distribución de contratos por método de adjudicación (%)
             </Typography>
-            <Pie data={dataPie} id={"_id"} value={"contractId"} />
+            <Pie
+              data={dataPie}
+              id={"_id"}
+              value={"porcentaje"}
+              translateY={-240}
+            />
           </Box>
         </Box>
       </Grid>

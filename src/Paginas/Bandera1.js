@@ -20,6 +20,7 @@ const TextoBold = styled(Typography)({
 });
 
 function Bandera1() {
+  const [value, setValue] = useState([0, 100]);
   const [dataBarraSecundaria, setdataBarraSecundaria] = useState([]);
   const [dataPie, setDataPie] = useState([]);
   const [dataBarraPrincipal, setDataBarraPrincipal] = useState([]);
@@ -76,7 +77,10 @@ function Bandera1() {
       .then((response) => {
         return response.json();
       })
-      .then((result) => setRangoSlider([result[0]?.min, result[0]?.max]))
+      .then((result) => {
+        setRangoSlider([result[0]?.min, result[0]?.max]);
+        getDataBarraPrincipal(value, fechaInicio, fechaFin);
+      })
       .catch((error) => console.log("error", error));
   }
 
@@ -153,7 +157,22 @@ function Bandera1() {
       .then((response) => {
         return response.json();
       })
-      .then((result) =>
+      .then((result) => {
+        // Obtenemos promedio
+        let sum = 0;
+        let i;
+
+        for (i = 0; i < result.length; i++) {
+          sum += result[i].contractId;
+        }
+
+        for (i = 0; i < result.length; i++) {
+          result[i]["porcentaje"] = Math.round(
+            (result[i].contractId * 100) / sum
+          );
+        }
+
+        // Ordenamos y asignamos valor
         setDataPie(
           result.sort((o1, o2) => {
             if (o1.contractId < o2.contractId) {
@@ -163,12 +182,16 @@ function Bandera1() {
             }
             return 0;
           })
-        )
-      )
+        );
+      })
       .catch((error) => console.log("error", error));
   }
 
-  function getDataBarraPrincipal(value = [0, 100]) {
+  function getDataBarraPrincipal(
+    value = [0, 100],
+    fechaInicio = "2016-12-08",
+    fechaFin = "2018-11-12"
+  ) {
     var myHeaders = new Headers();
 
     myHeaders.append("content-type", "application/json");
@@ -179,6 +202,10 @@ function Bandera1() {
           duration: {
             $gte: value[0], //limite inferior
             $lte: value[1], //limite superior
+          },
+          _datetime: {
+            $gte: fechaInicio,
+            $lte: fechaFin,
           },
           status: "Datos completos",
         },
@@ -301,10 +328,15 @@ function Bandera1() {
               contratación.
             </Typography>
             <RangeSlider
+              value={value}
+              setValue={setValue}
               color="purple"
               peticion={getDataBarraPrincipal}
               min={rangoSlider[0]}
               max={rangoSlider[1]}
+              fechaInicio={fechaInicio}
+              fechaFin={fechaFin}
+              mod={100}
             />
           </Box>
         </Box>
@@ -338,9 +370,14 @@ function Bandera1() {
         <Box sx={{ padding: 2 }}>
           <Box sx={{ p: 2, border: "5px dashed silver" }}>
             <Typography paragraph textAlign={"justify"}>
-              Integridad de los datos para el cálculo de la bandera
+              Integridad de los datos para el cálculo de la bandera (%)
             </Typography>
-            <Pie data={dataPie} id={"_id"} value={"contractId"} />
+            <Pie
+              data={dataPie}
+              id={"_id"}
+              value={"porcentaje"}
+              translateY={-240}
+            />
           </Box>
         </Box>
       </Grid>

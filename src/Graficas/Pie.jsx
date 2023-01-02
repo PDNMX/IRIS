@@ -7,7 +7,7 @@ const Pie = (parametros) => {
         data={parametros.data}
         id={parametros.id}
         value={parametros.value}
-        margin={{ top: 40, right: -40, bottom: 60, left: 80 }}
+        margin={{ top: 40, right: -20, bottom: 60, left: 80 }}
         innerRadius={0.5}
         padAngle={6}
         cornerRadius={10}
@@ -54,8 +54,8 @@ const Pie = (parametros) => {
             anchor: "bottom",
             direction: "column",
             justify: false,
-            translateX: -230,
-            translateY: -240,
+            translateX: -220,
+            translateY: parametros.translateY,
             itemsSpacing: 5,
             itemWidth: 250,
             itemHeight: 20,

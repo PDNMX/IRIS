@@ -22,10 +22,30 @@ export default function ResponsiveDatePickers(Props) {
             setValue(newValue);
             var fecha = new Date(newValue);
             if (Props.fechaInicio == null) {
-              Props.funcion(fecha, Props.fechaFin);
+              if (Props.funcion !== null) {
+                Props.funcion(fecha, Props.fechaFin);
+              } else {
+                Props.funcion2(
+                  Props.rangoInferior,
+                  Props.rangoSuperior,
+                  fecha,
+                  Props.fechaFin
+                );
+              }
+
               Props.setFechaInicio(fecha);
             } else if (Props.fechaFin == null) {
-              Props.funcion(Props.fechaInicio, fecha);
+              if (Props.funcion !== null) {
+                Props.funcion(Props.fechaInicio, fecha);
+              } else {
+                Props.funcion2(
+                  Props.rangoInferior,
+                  Props.rangoSuperior,
+                  Props.fechaInicio,
+                  fecha
+                );
+              }
+
               Props.setFechaFin(fecha);
             }
           }}

@@ -20,10 +20,11 @@ const TextoBold = styled(Typography)({
 });
 
 function Bandera5() {
+  const [value, setValue] = useState([1, 100]);
   const [dataBarraSecundaria, setdataBarraSecundaria] = useState([]);
   const [dataPie, setDataPie] = useState([]);
   const [dataBarraPrincipal, setDataBarraPrincipal] = useState([]);
-  const [rangoSlider, setRangoSlider] = useState([0, 1000]);
+  const [rangoSlider, setRangoSlider] = useState([1, 1000]);
   const [fechaInicio, setFechaInicio] = useState("2015-12-29");
   const [fechaFin, setFechaFin] = useState("2018-10-16");
 
@@ -76,7 +77,10 @@ function Bandera5() {
       .then((response) => {
         return response.json();
       })
-      .then((result) => setRangoSlider([result[0]?.min, result[0]?.max]))
+      .then((result) => {
+        setRangoSlider([result[0]?.min, result[0]?.max]);
+        getDataBarraPrincipal(value, fechaInicio, fechaFin);
+      })
       .catch((error) => console.log("error", error));
   }
 
@@ -153,7 +157,22 @@ function Bandera5() {
       .then((response) => {
         return response.json();
       })
-      .then((result) =>
+      .then((result) => {
+        // Obtenemos promedio
+        let sum = 0;
+        let i;
+
+        for (i = 0; i < result.length; i++) {
+          sum += result[i].contractId;
+        }
+
+        for (i = 0; i < result.length; i++) {
+          result[i]["porcentaje"] = Math.round(
+            (result[i].contractId * 100) / sum
+          );
+        }
+
+        // Ordenamos y asignamos valor
         setDataPie(
           result.sort((o1, o2) => {
             if (o1.contractId < o2.contractId) {
@@ -163,8 +182,8 @@ function Bandera5() {
             }
             return 0;
           })
-        )
-      )
+        );
+      })
       .catch((error) => console.log("error", error));
   }
 
@@ -313,12 +332,15 @@ function Bandera5() {
               contratación.
             </Typography>
             <RangeSlider
+              value={value}
+              setValue={setValue}
               color="purple"
               peticion={getDataBarraPrincipal}
               min={rangoSlider[0]}
               max={rangoSlider[1]}
               fechaInicio={fechaInicio}
               fechaFin={fechaFin}
+              mod={100}
             />
           </Box>
         </Box>
@@ -352,9 +374,14 @@ function Bandera5() {
         <Box sx={{ padding: 2 }}>
           <Box sx={{ p: 2, border: "5px dashed silver" }}>
             <Typography paragraph textAlign={"justify"}>
-              Calidad de los datos para cálculo de la bandera
+              Calidad de los datos para cálculo de la bandera (%)
             </Typography>
-            <Pie data={dataPie} id={"_id"} value={"contractId"} />
+            <Pie
+              data={dataPie}
+              id={"_id"}
+              value={"porcentaje"}
+              translateY={-240}
+            />
           </Box>
         </Box>
       </Grid>

@@ -6,7 +6,7 @@ const Line = (parametros) => {
     <div style={{ height: "400px" }}>
     <ResponsiveLine
         data={parametros.data}
-        margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
+        margin={{ top: 50, right: 110, bottom: 50, left: parametros.marginLeft }}
         xScale={{ type: 'point' }}
         yScale={{
             type: 'linear',
