@@ -1,33 +1,7 @@
-import { styled } from "@mui/material/styles";
-import {
-  Typography,
-  Button,
-  Box,
-  InputLabel,
-  InputAdornment,
-  Input,
-  FormControl,
-} from "@mui/material";
+import { InputLabel, InputAdornment, Input, FormControl } from "@mui/material";
 
 //Iconos
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-
-//Colores
-import { purple } from "@mui/material/colors";
-
-// Estilos
-const Boton = styled(Button)(({ theme }) => ({
-  color: theme.palette.getContrastText(purple[500]),
-  backgroundColor: purple[400],
-  "&:hover": {
-    backgroundColor: purple[600],
-  },
-}));
-
-const TextoBoton = styled(Typography)({
-  fontFamily: "Roboto",
-  fontWeight: "bold",
-});
 
 export default function Comando(Props) {
   function cargaComando(e) {
