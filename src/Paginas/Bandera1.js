@@ -13,6 +13,8 @@ import Pie from "../Graficas/Pie";
 //Iconos
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 
+const API = process.env.REACT_APP_API;
+
 const TextoBold = styled(Typography)({
   color: "black",
   fontWeight: "bold",
@@ -71,7 +73,7 @@ function Bandera1() {
     };
 
     fetch(
-      "https://iris.plataformadigitalnacional.org/api/dataset/analytic_contracts_flag_1/aggregate",
+      `${API}/dataset/analytic_contracts_flag_1/aggregate`,
       requestOptions
     )
       .then((response) => {
@@ -108,7 +110,7 @@ function Bandera1() {
     };
 
     fetch(
-      "https://iris.plataformadigitalnacional.org/api/dataset/analytic_contracts_flag_1/aggregate",
+      `${API}/dataset/analytic_contracts_flag_1/aggregate`,
       requestOptions
     )
       .then((response) => {
@@ -151,7 +153,7 @@ function Bandera1() {
     };
 
     fetch(
-      "https://iris.plataformadigitalnacional.org/api/dataset/analytic_contracts_flag_1/aggregate",
+      `${API}/dataset/analytic_contracts_flag_1/aggregate`,
       requestOptions
     )
       .then((response) => {
@@ -228,7 +230,7 @@ function Bandera1() {
     };
 
     fetch(
-      "https://iris.plataformadigitalnacional.org/api/dataset/analytic_contracts_flag_1/aggregate",
+      `${API}/dataset/analytic_contracts_flag_1/aggregate`,
       requestOptions
     )
       .then((response) => {

@@ -13,6 +13,8 @@ import Line from "../Graficas/Line";
 //Iconos
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 
+const API = process.env.REACT_APP_API;
+
 const TextoBold = styled(Typography)({
   color: "black",
   fontWeight: "bold",
@@ -70,7 +72,7 @@ function Bandera3() {
     };
 
     fetch(
-      "https://iris.plataformadigitalnacional.org/api/dataset/analytic_contracts_summary/aggregate",
+      `${API}/dataset/analytic_contracts_summary/aggregate`,
       requestOptions
     )
       .then((response) => {
@@ -117,7 +119,7 @@ function Bandera3() {
     };
 
     fetch(
-      "https://iris.plataformadigitalnacional.org/api/dataset/analytic_contracts_summary/aggregate",
+      `${API}/dataset/analytic_contracts_summary/aggregate`,
       requestOptions
     )
       .then((response) => {
@@ -159,7 +161,7 @@ function Bandera3() {
     };
 
     fetch(
-      "https://iris.plataformadigitalnacional.org/api/dataset/analytic_contracts_summary/aggregate",
+      `${API}/dataset/analytic_contracts_summary/aggregate`,
       requestOptions
     )
       .then((response) => {
@@ -205,7 +207,7 @@ function Bandera3() {
     };
 
     fetch(
-      "https://iris.plataformadigitalnacional.org/api/dataset/analytic_contracts_summary/aggregate",
+      `${API}/dataset/analytic_contracts_summary/aggregate`,
       requestOptions
     )
       .then((response) => {
@@ -248,7 +250,7 @@ function Bandera3() {
     };
 
     fetch(
-      "https://iris.plataformadigitalnacional.org/api/dataset/analytic_contracts_summary/aggregate",
+      `${API}/dataset/analytic_contracts_summary/aggregate`,
       requestOptions
     )
       .then((response) => {
@@ -313,7 +315,7 @@ function Bandera3() {
     };
 
     fetch(
-      "https://iris.plataformadigitalnacional.org/api/dataset/analytic_contracts_flag_4/aggregate",
+      `${API}/dataset/analytic_contracts_flag_4/aggregate`,
       requestOptions
     )
       .then((response) => {
