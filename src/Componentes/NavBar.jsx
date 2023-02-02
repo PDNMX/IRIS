@@ -15,7 +15,7 @@ import { styled } from "@mui/material/styles";
 //Iconos
 import FlagCircleIcon from "@mui/icons-material/FlagCircle";
 import { ReactComponent as PDN } from "../Imagenes/PDN.svg";
-import MenuIcon from "@mui/icons-material/Menu";
+//import MenuIcon from "@mui/icons-material/Menu";
 
 //Estilos
 const LinkInterno = styled(Link)({
@@ -73,7 +73,6 @@ export default function NavBar() {
               color="inherit"
               sx={{ ml: -3 }}
             >
-              <MenuIcon />
             </IconButton>
             <Menu
               id="menu-appbar"
@@ -94,8 +93,8 @@ export default function NavBar() {
               }}
             >
               {pages.map((page, index) => (
-                <LinkInterno to={index === 0 ? "/" : page.replace(" ", "")}>
-                  <MenuItem key={page} onClick={handleCloseNavMenu}>
+                <LinkInterno key={index} to={index === 0 ? "/" : page.replace(" ", "")}>
+                  <MenuItem onClick={handleCloseNavMenu}>
                     <FlagCircleIcon
                       style={{ height: "30px", color: "gray" }}
                       sx={{ mr: 1 }}
@@ -128,8 +127,8 @@ export default function NavBar() {
           {/*Caja que se muestra siempre*/}
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page, index) => (
-              <LinkInterno to={index === 0 ? "/" : page.replace(" ", "")}>
-                <IconButton key={page} onClick={handleCloseNavMenu}>
+              <LinkInterno key={index} to={index === 0 ? "/" : page.replace(" ", "")}>
+                <IconButton onClick={handleCloseNavMenu}>
                   <FlagCircleIcon
                     style={{ height: "30px", color: "beige" }}
                     sx={{ mr: 1 }}

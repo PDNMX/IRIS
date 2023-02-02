@@ -566,22 +566,23 @@ function Bandera4() {
             <Typography textAlign={"justify"}>
               Una diferencia significativa entre el precio de adjudicación y el
               precio final del contrato puede ser señal de:
-              <ul>
-                <li>
-                  Existencia de acuerdos "a puerta cerrada" entre proveedores y
-                  compradores. En algunos casos, el licitante ofrece un precio
-                  artificialmente bajo para ganar un contrato y luego aumenta
-                  los precios a través de enmiendas del contrato durante su
-                  implementación.
-                </li>
-                <li>
-                  Mala planificación en los procesos de adjudicación. En algunos
-                  casos se subestima el costo del bien y servicio, reportando un
-                  monto de adjudicación muy pequeño con respecto al monto final
-                  del contrato.
-                </li>
-              </ul>
             </Typography>
+            <ul>
+              <li>
+                Existencia de acuerdos "a puerta cerrada" entre proveedores y
+                compradores. En algunos casos, el licitante ofrece un precio
+                artificialmente bajo para ganar un contrato y luego aumenta
+                los precios a través de enmiendas del contrato durante su
+                implementación.
+              </li>
+              <li>
+                Mala planificación en los procesos de adjudicación. En algunos
+                casos se subestima el costo del bien y servicio, reportando un
+                monto de adjudicación muy pequeño con respecto al monto final
+                del contrato.
+              </li>
+            </ul>
+            
 
             <TextoBold variant="h6">Información que necesitamos</TextoBold>
             <ul>

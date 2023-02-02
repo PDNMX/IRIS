@@ -115,11 +115,11 @@ function PieDePagina() {
                   "https://www.plataformadigitalnacional.org/" +
                   text.toLowerCase()
                 }
+                key={index}
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 <ListItem
-                  key={text}
                   disablePadding
                   style={{ height: "30px", color: "azure" }}
                 >
@@ -157,11 +157,11 @@ function PieDePagina() {
                     ? "terminos"
                     : text)
                 }
+                key={index}
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 <ListItem
-                  key={text}
                   disablePadding
                   style={{ height: "30px", color: "azure" }}
                 >
