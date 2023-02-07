@@ -15,7 +15,7 @@ import Home from "../Paginas/Home";
 export default function Main() {
   return (
     <div>
-      <Router>
+      <Router basename={process.env.PUBLIC_URL}>
         <NavBar />
 
         <Routes>
